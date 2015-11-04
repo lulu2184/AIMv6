@@ -1,4 +1,3 @@
-
 SECTIONS
 {
     . = 0x200000;
@@ -13,4 +12,3 @@ SECTIONS
 	}
 }
 ENTRY(hello)
-
