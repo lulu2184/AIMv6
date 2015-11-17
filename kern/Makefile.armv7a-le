@@ -1,0 +1,29 @@
+CROSS_COMPILE	=  arm-unknown-eabi-
+
+CC = $(CROSS_COMPILE)gcc
+CPP = $(CROSS_COMPILE)cpp
+LD = $(CROSS_COMPILE)ld
+OBJDUMP	= $(CROSS_COMPILE)objdump
+OBJCOPY	= $(CROSS_COMPILE)objcopy
+
+LDFLAGS	= -EL -O -N
+
+objects = kern_entry.o vm.o
+
+VM_OBJS = vm/page_init.c vm/page_kernel.c vm/page_utils.c vm/page_defines.h
+
+kern.elf: $(objects)
+	$(LD) $(LDFLAGS) -T kern.ld -o kern.elf $(objects)
+
+kern_entry.o: kernel.c
+	$(CC) -c kernel.c
+
+vm_init.o: vm/page_init.c vm/page_defines.h
+	$(CC) -c vm/page_init.c 
+
+vm_kernel.o: vm/page_kernel.c vm/page_defines.h
+	$(CC) -c vm/page_kernel.c
+
+clean:
+	rm kern $(objects)
+
