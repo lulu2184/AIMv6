@@ -60,15 +60,28 @@ firmware.elf: $(FIRMWARE_OBJS) firmware.ld
 
 $(MBR_OBJS): EXTRA_CFLAGS := -Os
 
+kern_objects = kern_entry.o kern_entry.o vm_init.o vm_kernel.o
+
 mbr.elf: $(MBR_OBJS) boot/arch/$(ARCH)/$(MACH)/mbr.ld
 	$(LD) $(LDFLAGS) -T boot/arch/$(ARCH)/$(MACH)/mbr.ld -o $@ $^
 
+kern.elf: $(kern_objects)
+	$(LD) $(LDFLAGS) -T kern/kern.ld -o kern/kern.elf $(kern_objects)
 
+kern_entry.o: kern/kernel.c
+	$(CC) -c kern/kernel.c
+
+vm_init.o: kern/vm/page_init.c kern/vm/page_defines.h
+	$(CC) -c kern/vm/page_init.c 
+
+vm_kernel.o: kern/vm/page_kernel.c kern/vm/page_defines.h
+	$(CC) -c kern/vm/page_kernel.c
 
 clean:
 	rm -f firmware.ld
 	rm -rf $(FIRMWARE_OBJS) firmware.elf firmware.bin firmware.s
 	rm -rf $(MBR_OBJS) mbr.elf mbr.bin mbr.s
+	rm -rf $(kern_objects)
 
 .S.o:
 	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<
