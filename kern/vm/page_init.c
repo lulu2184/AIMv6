@@ -16,6 +16,7 @@ void fill_pme_common(pme_t *pme) {
 void init_mapping() {
 	pme_t *pme = (void *)RESERVED_MEM_BASE;
 	memset(pme, 0, PAGE_SIZE << 2);
+	
 	/* mapping for non-preserved address PA <=> VA */
 	for (uint *addr = 0; addr < PRESERVED_MEM_BASE; addr += MEM_SECTION_SIZE) {
 		fill_pme_common(pme);
