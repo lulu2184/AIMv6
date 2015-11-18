@@ -11,4 +11,4 @@ SECTIONS
 		*(.bss)
 	}
 }
-ENTRY(hello)
+ENTRY(kernel_entry)

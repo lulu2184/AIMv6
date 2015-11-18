@@ -46,7 +46,7 @@ FIRMWARE_M4	=  firmware/arch/$(ARCH)/firmware.m4 \
 
 MBR_OBJS	=  boot/arch/$(ARCH)/$(MACH)/bootmain.o
 
-all: firmware.bin mbr.bin
+all: firmware.bin mbr.bin kern.elf
 
 $(FIRMWARE_OBJS): EXTRA_CFLAGS = -O2
 
@@ -60,7 +60,8 @@ firmware.elf: $(FIRMWARE_OBJS) firmware.ld
 
 $(MBR_OBJS): EXTRA_CFLAGS := -Os
 
-kern_objects = kern_entry.o kern_entry.o vm_init.o vm_kernel.o
+kern_objects = kern_entry.o vm_init.o\
+				kern/arch/$(ARCH)/enable_mmu.o
 
 mbr.elf: $(MBR_OBJS) boot/arch/$(ARCH)/$(MACH)/mbr.ld
 	$(LD) $(LDFLAGS) -T boot/arch/$(ARCH)/$(MACH)/mbr.ld -o $@ $^
@@ -68,14 +69,11 @@ mbr.elf: $(MBR_OBJS) boot/arch/$(ARCH)/$(MACH)/mbr.ld
 kern.elf: $(kern_objects)
 	$(LD) $(LDFLAGS) -T kern/kern.ld -o kern/kern.elf $(kern_objects)
 
-kern_entry.o: kern/kernel.c
-	$(CC) -c kern/kernel.c
+kern_entry.o: kern/kernel.c kern/kernel.h
+	$(CC) -c kern/kernel.c -o kern_entry.o
 
 vm_init.o: kern/vm/page_init.c kern/vm/page_defines.h
-	$(CC) -c kern/vm/page_init.c 
-
-vm_kernel.o: kern/vm/page_kernel.c kern/vm/page_defines.h
-	$(CC) -c kern/vm/page_kernel.c
+	$(CC) -c kern/vm/page_init.c -o vm_init.o
 
 clean:
 	rm -f firmware.ld

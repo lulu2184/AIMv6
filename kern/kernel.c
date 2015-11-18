@@ -1,8 +1,9 @@
-#include "page_defines.h"
+#include "vm/page_defines.h"
+#include "kernel.h"
 
 /**
  * entry point of kernel
 **/
-int kernel_main() {
-	first_page_table_init();
+int kernel_entry() {
+	init_first_page_table();
 }

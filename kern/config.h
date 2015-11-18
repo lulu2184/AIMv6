@@ -1,0 +1,1 @@
+#define KERN_BASE 0x80000000

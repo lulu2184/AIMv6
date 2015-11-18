@@ -1,3 +1,7 @@
+
+#ifndef _PAGE_DEFINES_H_
+#define _PAGE_DEFINES_H_
+
 #define KERN_BASE 			0x80000000
 #define EXTMEM_BASE 		0xE0000000 // in physics mem
 #define PYMEM_SIZE			0x20000000
@@ -26,42 +30,45 @@
  *	+---------------+ /
 **/
 
+/**
+ * struct for section entry in L1 page table
+ **/  
 typedef struct pme_s {
-	BITS(type, 2);
-	BITS(B, 1);
-	BITS(C, 1);
-	BITS(XN, 1);
-	BITS(domain, 4);
-	BITS(zero1, 1);
-	BITS(AP_L, 2);
-	BITS(TEX, 3);
-	BITS(AP_H, 1);
-	BITS(S, 1);
-	BITS(ng, 1);
-	BITS(zero2, 1);
-	BITS(NS, 1);
-	BITS(base, 12);	
+	unsigned type : 2;
+	unsigned B : 1;
+	unsigned C : 1;
+	unsigned XN : 1;
+	unsigned domain : 4;
+	unsigned zero1 : 1;
+	unsigned AP_L : 2;
+	unsigned TEX : 3;
+	unsigned AP_H : 1;
+	unsigned S : 1;
+	unsigned ng : 1;
+	unsigned zero2 : 1;
+	unsigned NS : 1;
+	unsigned base : 12;	
 } pme_t;
 
 typedef struct pde_s {
-	BITS(type, 2);
-	BITS(SBZ, 1);
-	BITS(NS, 1);
-	BITS(SBZ, 1);
-	BITS(domain, 4);
-	BITS(empty, 1);
-	BITS(pte_base, 22);
+	unsigned type : 2;
+	unsigned SBZ1 : 1;
+	unsigned NS : 1;
+	unsigned SBZ2 : 1;
+	unsigned domain : 4;
+	unsigned empty : 1;
+	unsigned pte_base : 22;
 } pde_t;
 
 typedef struct pte_s {
-	BITS(type, 2);
-	BITS(memattr, 2);
-	BITS(AP, 2);
-	BITS(TEX, 3);
-	BITS(APX, 1);
-	BITS(S, 1);
-	BITS(ng, 1);
-	BITS(base, 20);
+	unsigned type : 2;
+	unsigned memattr : 2;
+	unsigned AP : 2;
+	unsigned TEX : 3;
+	unsigned APX : 1;
+	unsigned S : 1;
+	unsigned ng : 1;
+	unsigned base : 20;
 } pte_t;
 
 // In page_init.c
@@ -69,4 +76,6 @@ void fill_pme_common(pme_t *pme);
 void init_mapping();
 void devices_mapping();
 void init_first_page_table();
+
+#endif
 
