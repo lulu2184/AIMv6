@@ -9,6 +9,7 @@
 #define PAGE_SIZE			0x10000 //4K
 #define PAGE_SHIFT			12
 #define MEM_SECTION_SIZE	0x100000 //1M
+#define MEM_SECTION_SHIFT	20
 
 /**
  *	diagram for virtual memory structure
