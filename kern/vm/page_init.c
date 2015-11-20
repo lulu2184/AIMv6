@@ -1,4 +1,5 @@
 #include "page_defines.h"
+#include "puthex.h"
 #include <string.h>
 #include <drivers/serial/uart.h>
 
@@ -73,10 +74,11 @@ void devices_mapping() {
  * for the kernel.
  **/
 void init_first_page_table() {
+	uart_spin_puts("Hello kernel!");
 	init_mapping();
 	devices_mapping();
 	enable_mmu(); 	//assemble code in vm/enable_mmu.S
 	unsigned tmp_pc;
 	asm volatile("mov %0 ,r15" : "=r"(tmp_pc));
-	uart_spin_printf("%X\n",tmp_pc);
+	puthex(tmp_pc);
 }
