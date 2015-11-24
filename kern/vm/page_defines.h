@@ -5,7 +5,7 @@
 #define KERN_BASE 			0x80000000
 #define EXTMEM_BASE 		0xE0000000 // in physics mem
 #define PYMEM_SIZE			0x20000000
-#define PRESERVED_MEM_BASE 	0x1FFF0000 // in physics mem
+#define PRESERVED_MEM_BASE 	0x1F000000 // in physics mem
 #define PAGE_SIZE			0x10000 //4K
 #define PAGE_SHIFT			12
 #define MEM_SECTION_SIZE	0x100000 //1M

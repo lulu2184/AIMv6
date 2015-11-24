@@ -27,7 +27,7 @@ OBJCOPY		=  $(CROSS_COMPILE)objcopy
 INCFLAG		=  -I. -I./include -I./include/arch/$(ARCH)
 INCFLAG		+= -I./include/arch/$(ARCH)/asm/mach-$(MACH)
 
-CFLAGS		=  -Wall -fno-builtin -nostdinc -nostdlib -march=armv7-a
+CFLAGS		=  -Wall -fno-builtin -nostdinc -nostdlib -march=armv7-a -fpic
 CFLAGS		+= -mlittle-endian $(INCFLAG) -DMACH_$(UPPERMACH)
 
 LDFLAGS		=  -EL -O -N
@@ -76,10 +76,10 @@ kern.elf: $(kern_objects) kern/kern.ld
 	$(LD) $(LDFLAGS) -T kern/kern.ld -o kern/kern.elf $(kern_objects)
 
 kern_entry.o: kern/kernel.c kern/kernel.h
-	$(CC) $(CFLAGS) -c kern/kernel.c -o kern_entry.o
+	$(CC) $(CFLAGS) -c kern/kernel.c -o kern_entry.o 
 
 vm_init.o: kern/vm/page_init.c kern/vm/page_defines.h
-	$(CC) $(CFLAGS) -c kern/vm/page_init.c -o vm_init.o
+	$(CC) $(CFLAGS) -c kern/vm/page_init.c -o vm_init.o 
 
 clean:
 	rm -f firmware.ld
