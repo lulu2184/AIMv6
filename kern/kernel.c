@@ -6,4 +6,5 @@
 **/
 int kernel_entry() {
 	init_first_page_table();
+	alloc_init();
 }

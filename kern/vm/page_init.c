@@ -91,7 +91,3 @@ void init_first_page_table() {
 	asm volatile("mov %0 ,pc" : "=r"(tmp_pc));
 	puthex(tmp_pc);
 }
-
-void hello_world() {
-	uart_spin_puts("Hello, world!\r\n");
-}

@@ -7,9 +7,11 @@
 #define PYMEM_SIZE			0x20000000
 #define PRESERVED_MEM_BASE 	0x1F000000 // in physics mem
 #define PAGE_SIZE			0x10000 //4K
-#define PAGE_SHIFT			12
+#define PAGE_SHIFT			16
 #define MEM_SECTION_SIZE	0x100000 //1M
 #define MEM_SECTION_SHIFT	20
+#define PY_SAFE_BEGIN		0x200000 //2M
+#define PY_SAFE_END			PRESERVED_MEM_BASE
 
 /**
  *	diagram for virtual memory structure
@@ -77,6 +79,11 @@ void fill_pme_common(pme_t *pme);
 void init_mapping();
 void devices_mapping();
 void init_first_page_table();
+
+// In page_manager.c
+void alloc_init();
+char* alloc_pages(int pnum);
+void free_pages(char *addr, unsigned size);
 
 #endif
 

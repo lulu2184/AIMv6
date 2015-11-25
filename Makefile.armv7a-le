@@ -38,7 +38,7 @@ FIRMWARE_OBJS	=  firmware/arch/$(ARCH)/vector.o \
 		   drivers/serial/uart-zynq7000.o \
 		   drivers/serial/uart.o \
 		   drivers/clock/gtc-a9mpcore.o \
-		   drivers/sd/sd-zynq7000.o
+		   drivers/sd/sd-zynq7000.o 
 
 FIRMWARE_M4	=  firmware/arch/$(ARCH)/firmware.m4 \
 		   firmware/arch/$(ARCH)/$(MACH)/chip.m4 \
@@ -68,6 +68,7 @@ INCLUDE_SRCS = $(wildcard $(INCLUDE_LIBS)/puthex.c)
 
 kern_objects = kern_entry.o vm_init.o\
 				kern/arch/$(ARCH)/enable_mmu.o \
+				kern/vm/page_manager.o \
 				drivers/serial/uart.o \
 				drivers/serial/uart-zynq7000.o \
 				$(INCLUDE_SRCS:.c=.o)
