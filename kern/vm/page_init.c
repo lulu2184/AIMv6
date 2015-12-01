@@ -82,7 +82,6 @@ void devices_mapping() {
  * for the kernel.
  **/
 void init_first_page_table() {
-	uart_spin_puts("Hello kernel!\r\n");
 	init_mapping();
 	devices_mapping();
 	enable_mmu(); 	//assemble code in vm/enable_mmu.S
@@ -90,4 +89,4 @@ void init_first_page_table() {
 	unsigned tmp_pc;
 	asm volatile("mov %0 ,pc" : "=r"(tmp_pc));
 	puthex(tmp_pc);
-}
+}		

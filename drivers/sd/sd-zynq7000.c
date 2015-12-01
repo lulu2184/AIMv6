@@ -269,6 +269,7 @@ int sd_dma_spin_read(u32 pa, u16 count, u32 offset)
 	/* CMD18 with auto_cmd12 */
 	ret = sd_spin_send_cmd(SD_CMD18, count, offset, 1);
 	if (ret) return -2;
+
 	/* wait for transfer complete */
 	do {
 		state16 = in16(SD_BASE + SD_NORM_INTR_STS_OFFSET);
@@ -276,6 +277,11 @@ int sd_dma_spin_read(u32 pa, u16 count, u32 offset)
 			out16(SD_BASE + SD_ERR_INTR_STS_OFFSET, \
 				SD_ERR_INTR_ALL);
 			return -3;
+		}
+		if (state16 & SD_INTR_DMA) {
+			unsigned int next_paddr = in32(SD_BASE + SD_SDMA_SYS_ADDR_OFFSET);
+			out16(SD_BASE + SD_NORM_INTR_STS_OFFSET, SD_INTR_DMA);
+			out32(SD_BASE + SD_SDMA_SYS_ADDR_OFFSET, next_paddr);
 		}
 	} while (!(state16 & SD_INTR_TC));
 	/* clean up */
