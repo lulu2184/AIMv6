@@ -14,10 +14,8 @@ void fill_pme_common(pme_t *pme) {
 
 /**
  * In the first process, map VA <=> PA.
- * TODO: revise comments
  **/
 void init_mapping() {
-//	memset(pme, 0, PAGE_SIZE << 2);
 	unsigned *table = (void *)PRESERVED_MEM_BASE;
 	for (int i = 0; i < 0x2000; i++)
 		table[i] = 0;
@@ -28,29 +26,28 @@ void init_mapping() {
 	for (unsigned *addr = 0; addr < (unsigned *)PYMEM_SIZE; addr += MEM_SECTION_SIZE >> 2) {
 		pme = page_table + ((unsigned)addr >> MEM_SECTION_SHIFT);
 		fill_pme_common(pme);
-		pme->B = 0;			//Non-cache
-		pme->C = 0;			//Non-cache
-		pme->AP_L = 0x2;	//full access AP: 011
-		pme->TEX = 0x0; 	//Normal memory
-		pme->AP_H = 0x0; 	//full access
-		pme->S = 0x1;		//Non-sharable
-		pme->ng = 0;		//Non-global
+		pme->B = 0;			
+		pme->C = 0;			
+		pme->AP_L = 0x2;	//No user mode write AP: 011
+		pme->TEX = 0x0; 	
+		pme->AP_H = 0x0; 	//No user mode write
+		pme->S = 0x1;		//sharable
+		pme->ng = 0;		//global
 		pme->base = (unsigned)addr >> MEM_SECTION_SHIFT;
 	}
 
 	/* mapping for preserved and non-preserved address PA <=> VA + KERN_BASE*/
-	// pme = (void *)PRESERVED_MEM_BASE + (KERN_BASE >> MEM_SECTION_SHIFT) * 4;
 	page_table = (void *)PRESERVED_MEM_BASE + (KERN_BASE >> (MEM_SECTION_SHIFT - 2));
 	for (unsigned *addr = 0; addr < (unsigned *)PYMEM_SIZE; addr += MEM_SECTION_SIZE >> 2) {
 		pme = page_table + ((unsigned)addr >> MEM_SECTION_SHIFT);
 		fill_pme_common(pme);
-		pme->B = 0;			//Non-cache
-		pme->C = 0;			//Non-cache
-		pme->AP_L = 0x2;	//Privileged access only AP: 001
-		pme->TEX = 0x0; 	//Normal memory
-		pme->AP_H = 0x0; 	//Privileged access only
-		pme->S = 0x1;		//Non-sharable
-		pme->ng = 0;		//Non-global
+		pme->B = 0;			
+		pme->C = 0;			
+		pme->AP_L = 0x2;	//No user mode write AP: 001
+		pme->TEX = 0x0; 	
+		pme->AP_H = 0x0; 	//No user mode write
+		pme->S = 0x1;		//sharable
+		pme->ng = 0;		//global
 		pme->base = (unsigned)addr >> MEM_SECTION_SHIFT;
 	}
 }
@@ -61,7 +58,6 @@ void init_mapping() {
  **/
 void devices_mapping() {
 	/* entry for external device */
-	// pme_t *pme = (void *)PRESERVED_MEM_BASE + (EXTMEM_BASE >> MEM_SECTION_SHIFT);
 	pme_t *page_table = (void *)PRESERVED_MEM_BASE;
 	for (unsigned *addr = (unsigned *)EXTMEM_BASE; addr - MEM_SECTION_SIZE < addr; addr += MEM_SECTION_SIZE >> 2) {
 		pme_t *pme = page_table + ((unsigned)addr >> MEM_SECTION_SHIFT);
@@ -77,6 +73,19 @@ void devices_mapping() {
 	}
 }
 
+
+/**
+ * After MMU enabled, remove mapping in user space.
+**/
+void remove_low_mapping() {
+	pme_t *page_table = (void *)PRESERVED_MEM_BASE;
+	pme_t *pme;
+	for (unsigned *addr = 0; addr < (unsigned *)PYMEM_SIZE; addr += MEM_SECTION_SIZE >> 2) {
+		pme = page_table + ((unsigned)addr >> MEM_SECTION_SHIFT);
+		pme->type = 0;
+	}
+}
+
 /**
  * Initialize mapping from virtual memory to physical memory
  * for the kernel.
@@ -85,8 +94,10 @@ void init_first_page_table() {
 	init_mapping();
 	devices_mapping();
 	enable_mmu(); 	//assemble code in vm/enable_mmu.S
-	uart_spin_puts("enabled MMU\r\nPC=");
+	uart_spin_puts("enabled MMU\r\n");
 	unsigned tmp_pc;
+	uart_spin_puts("Now, PC should run on kernel address! PC = ");
 	asm volatile("mov %0 ,pc" : "=r"(tmp_pc));
 	puthex(tmp_pc);
+	remove_low_mapping();
 }		
