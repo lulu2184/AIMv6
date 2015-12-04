@@ -62,14 +62,17 @@ $(MBR_OBJS): EXTRA_CFLAGS := -Os
 
 mbr.elf: $(MBR_OBJS) boot/arch/$(ARCH)/$(MACH)/mbr.ld
 	$(LD) $(LDFLAGS) -T boot/arch/$(ARCH)/$(MACH)/mbr.ld -o $@ $^
+	
 
 INCLUDE_LIBS = include/
 INCLUDE_SRCS = $(wildcard $(INCLUDE_LIBS)/puthex.c)
 KERN_VM = $(wildcard kern/vm/*.c)
+KERN_TEST = $(wildcard kern/test/*.c)
 
 kern_objects = kern_entry.o\
 				kern/arch/$(ARCH)/enable_mmu.o \
 				$(KERN_VM:.c=.o) \
+				$(KERN_TEST:.c=.o) \
 				drivers/serial/uart.o \
 				drivers/serial/uart-zynq7000.o \
 				$(INCLUDE_SRCS:.c=.o)
