@@ -58,6 +58,7 @@ char* alloc_pages(int pnum) {
   * free size pages begin on addr 
   * @param addr the begin address of the free pages
   * @param size the number of pages to free
+  * TODO: print error mesg if the pages to be freed is not allocated.
  **/
 void free_pages(char *addr, unsigned size) {
 	if (((unsigned)addr & (PAGE_SIZE - 1)) > 0) {

@@ -65,10 +65,11 @@ mbr.elf: $(MBR_OBJS) boot/arch/$(ARCH)/$(MACH)/mbr.ld
 
 INCLUDE_LIBS = include/
 INCLUDE_SRCS = $(wildcard $(INCLUDE_LIBS)/puthex.c)
+KERN_VM = $(wildcard kern/vm/*.c)
 
-kern_objects = kern_entry.o vm_init.o\
+kern_objects = kern_entry.o\
 				kern/arch/$(ARCH)/enable_mmu.o \
-				kern/vm/page_manager.o \
+				$(KERN_VM:.c=.o) \
 				drivers/serial/uart.o \
 				drivers/serial/uart-zynq7000.o \
 				$(INCLUDE_SRCS:.c=.o)

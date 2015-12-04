@@ -13,6 +13,8 @@
 #define PY_SAFE_BEGIN		0x200000 //2M
 #define PY_SAFE_END			PRESERVED_MEM_BASE
 
+#define NULL 0
+
 /**
  *	diagram for virtual memory structure
  *
