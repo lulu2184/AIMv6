@@ -2,7 +2,6 @@
 #include <drivers/serial/uart.h>
 
 #define KMEM_BASE 0x1F200000
-#define NULL 0
 
 typedef struct mblock_s{
 	struct mblock_s *next;
@@ -55,12 +54,34 @@ char* alloc_pages(int pnum) {
 }
 
 /**
+  * alloc pnum pages for caller and the start address of pages should be aligned
+  * @param pnum the number of pages 
+  * @param aligned_shift indicates that the allocated pages should aligned to 2^(sligned_shift) (by pages) 
+  * if fail to alloc return 0, else return the base address of the pages
+ **/
+char* alloc_aligned_pages(int pnum, int aligned_shift) {
+	void *addr = alloc_pages(pnum + (1 << aligned_shift) - 1);
+	void *alloc_end = (void*)((unsigned)addr >> PAGE_SHIFT + (pnum + (1 << aligned_shift) - 1));
+	while (1) {
+		int page_code = (unsigned)addr >> PAGE_SHIFT;
+		if ((page_code & ((1 << aligned_shift) - 1)) == 0) {
+			void* end = (unsigned)addr + pnum  << PAGE_SHIFT;
+			free_pages(end, alloc_end - end);
+			return (char*)addr;
+		}
+		free_pages(addr, 1);
+		addr += PAGE_SIZE;
+	}
+}
+
+/**
   * free size pages begin on addr 
   * @param addr the begin address of the free pages
   * @param size the number of pages to free
   * TODO: print error mesg if the pages to be freed is not allocated.
  **/
 void free_pages(char *addr, unsigned size) {
+	if (size == 0) return;
 	if (((unsigned)addr & (PAGE_SIZE - 1)) > 0) {
 		uart_spin_puts("free page base address is not aligned.\r\n");
 		return;
