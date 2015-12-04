@@ -1,25 +1,5 @@
 #include "page_defines.h"
-
-typedef struct obj_s{
-	struct obj_s* next;
-}obj_t;
-
-typedef struct slab_s{
-	int obj_remain;
-	obj_t* free_obj_header;
-	struct slab_s* next;
-}slab_t;
-
-typedef struct slab_pool_s{
-	int obj_size;
-	struct slab_pool_s* next;
-
-	slab_t* slab_header;
-	slab_t* slab_tail;
-}slab_pool_t;
-
-const int slab_size_list[5] = {8, 16, 64, 128, 512};
-const int SLAB_SIZE_NUM = 5;
+#include "slab_defines.h"
 
 slab_pool_t* slab_pool_header;
 
@@ -47,13 +27,13 @@ void slab_init(unsigned addr, int pnum, int obj_size) {
 }
 
 void slab_pools_init() {
-	unsigned addr = alloc_pages(1);
+	unsigned addr = (unsigned)alloc_pages(1);
 	slab_pool_t* now = (slab_pool_t*)addr;
 	slab_pool_t* last = NULL;
 	for (int i = SLAB_SIZE_NUM - 1; i >= 0; i++) {
 		now->obj_size = slab_size_list[i];
 		now->next = last;
-		addr = alloc_pages(4);
+		addr = (unsigned)alloc_pages(4);
 		now->slab_header = (slab_t*)addr;
 		slab_init(addr, 4, now->obj_size);
 		now->slab_tail = (slab_t*)(addr + PAGE_SIZE * 3);
