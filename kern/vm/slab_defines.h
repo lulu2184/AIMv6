@@ -13,6 +13,8 @@ typedef struct slab_s{
 
 typedef struct slab_pool_s{
 	int obj_size;
+	int max_obj_size;
+	int free_slabs;
 	struct slab_pool_s* next;
 
 	slab_t* slab_header;
@@ -20,7 +22,7 @@ typedef struct slab_pool_s{
 }slab_pool_t;
 
 const int SLAB_SIZE_NUM = 6;
-const int slab_size_list[SLAB_SIZE_NUM] = {8, 16, 64, 128, 512, 1024};
+const int slab_size_list[6] = {8, 16, 64, 128, 512, 1024};
 
 void slab_pools_init();
 void obj_free();
