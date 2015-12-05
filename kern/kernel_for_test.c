@@ -30,17 +30,27 @@ void pages_manager_test() {
 }
 
 int kernel_entry() {
-	unsigned tmp_pc;
 	uart_spin_puts("Hello kernel!\r\n");
 	init_first_page_table();
+	unsigned tmp;
+	asm volatile(
+		"ldr fp, =0x80F00000\r\n"
+		"mov sp, fp"
+	);
+	remove_low_mapping();
+	// asm volatile("mov %0, sp" : "=r"(tmp));
+	// puthex(tmp);
 	uart_spin_puts("Kernel space!: PC = ");
-	asm volatile("mov %0 ,pc" : "=r"(tmp_pc));
-	puthex(tmp_pc);
-	// TODO!! if delete the two lines below, bug appears
-	asm volatile("mov %0 ,pc" : "=r"(tmp_pc));
-	puthex(tmp_pc);
+	asm volatile("mov %0 ,pc" : "=r"(tmp));
+	puthex(tmp);
+	// TODO!! if delete the two lines below, the following codes will not be executed.
+	asm volatile("mov %0 ,pc" : "=r"(tmp));
+	puthex(tmp);
 	alloc_init();
 	pages_manager_test();
+
+	asm volatile("mov %0 ,sp" : "=r"(tmp));
+	puthex(tmp);
 
 	while (1);
 }
