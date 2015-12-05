@@ -10,7 +10,7 @@
 #define PAGE_SHIFT			16
 #define MEM_SECTION_SIZE	0x100000 //1M
 #define MEM_SECTION_SHIFT	20
-#define PY_SAFE_BEGIN		0x200000 //2M
+#define PY_SAFE_BEGIN		0xF00000
 #define PY_SAFE_END			PRESERVED_MEM_BASE
 
 #define NULL 0
@@ -86,6 +86,7 @@ void init_first_page_table();
 void alloc_init();
 char* alloc_pages(int pnum);
 void free_pages(char *addr, unsigned size);
+unsigned get_kmem_first_size();
 
 #endif
 

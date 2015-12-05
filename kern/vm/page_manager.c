@@ -13,12 +13,15 @@ struct {
 	mblock_t *freelist;
 }kmem;
 
+unsigned get_kmem_first_size() {
+	return kmem.freelist->size;	
+}
+
 void alloc_init() {
 	kmem.freelist = (void *)KERN_BASE;
 	kmem.freelist->addr = (void *)KERN_BASE + PY_SAFE_BEGIN;
 	kmem.freelist->next = NULL;
 	kmem.freelist->size = (PY_SAFE_END - PY_SAFE_BEGIN) >> PAGE_SHIFT;
-	puthex(kmem.freelist->size);
 
 	uart_spin_puts("alloc init finish\r\n");
 }
@@ -33,7 +36,6 @@ char* alloc_pages(int pnum) {
 	mblock_t *block = kmem.freelist;
 	mblock_t *last = NULL;	
 	char *ret = NULL;
-	puthex(kmem.freelist->size);
 	while (block != NULL) {
 		if (block->size > pnum) {
 			ret = block->addr + (block->size - pnum) * PAGE_SIZE;
@@ -49,7 +51,6 @@ char* alloc_pages(int pnum) {
 		last = block;
 		block = block->next;
 	}
-	puthex(kmem.freelist->size);
 	return ret;
 }
 
@@ -61,11 +62,11 @@ char* alloc_pages(int pnum) {
  **/
 char* alloc_aligned_pages(int pnum, int aligned_shift) {
 	void *addr = alloc_pages(pnum + (1 << aligned_shift) - 1);
-	void *alloc_end = (void*)((unsigned)addr >> PAGE_SHIFT + (pnum + (1 << aligned_shift) - 1));
+	void *alloc_end = (void*)(((unsigned)addr >> PAGE_SHIFT) + (pnum + (1 << aligned_shift) - 1));
 	while (1) {
 		int page_code = (unsigned)addr >> PAGE_SHIFT;
 		if ((page_code & ((1 << aligned_shift) - 1)) == 0) {
-			void* end = (unsigned)addr + pnum  << PAGE_SHIFT;
+			void* end = addr + (pnum  << PAGE_SHIFT);
 			free_pages(end, alloc_end - end);
 			return (char*)addr;
 		}
@@ -89,12 +90,9 @@ void free_pages(char *addr, unsigned size) {
 
 	uart_spin_puts("free pages\r\n");
 	mblock_t *block = kmem.freelist;
-	puthex(kmem.freelist->size);
 	mblock_t *last = NULL;
 	while (block != NULL) {
 		if ((unsigned)block->addr > (unsigned)addr) {
-			puthex((unsigned)block->addr);
-			puthex((unsigned)addr);
 			if (last != NULL && last->addr + (last->size << PAGE_SHIFT) == addr) {
 				last->size += size;
 			} else {
@@ -112,7 +110,6 @@ void free_pages(char *addr, unsigned size) {
 				last->next = block ->next;
 				last->size = last->size + block->size;
 			}
-			puthex(kmem.freelist->size);
 			uart_spin_puts("free finish.\r\n");	
 			return;
 		}
@@ -131,7 +128,6 @@ void free_pages(char *addr, unsigned size) {
 		else 
 			kmem.freelist = new_block;
 	}	
-	puthex(kmem.freelist->size);
 	uart_spin_puts("free finish.\r\n");	
 	return;
 }

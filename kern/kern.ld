@@ -1,6 +1,6 @@
 SECTIONS
 {
-    . = 0xF00000;
+    . = 0x700000;
 	.data : {
 		*(.data)
 	}

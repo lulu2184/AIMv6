@@ -46,7 +46,7 @@ FIRMWARE_M4	=  firmware/arch/$(ARCH)/firmware.m4 \
 
 MBR_OBJS	=  boot/arch/$(ARCH)/$(MACH)/bootmain.o
 
-all: firmware.bin mbr.bin kern.elf
+all: firmware.bin mbr.bin kern.elf kernel_test.elf
 
 $(FIRMWARE_OBJS): EXTRA_CFLAGS = -O2
 
@@ -69,22 +69,24 @@ INCLUDE_SRCS = $(wildcard $(INCLUDE_LIBS)/puthex.c)
 KERN_VM = $(wildcard kern/vm/*.c)
 KERN_TEST = $(wildcard kern/test/*.c)
 
-kern_objects = kern_entry.o\
-				kern/arch/$(ARCH)/enable_mmu.o \
+kern_objects =  kern/arch/$(ARCH)/enable_mmu.o \
 				$(KERN_VM:.c=.o) \
 				$(KERN_TEST:.c=.o) \
 				drivers/serial/uart.o \
 				drivers/serial/uart-zynq7000.o \
 				$(INCLUDE_SRCS:.c=.o)
 
-kern.elf: $(kern_objects) kern/kern.ld
-	$(LD) $(LDFLAGS) -T kern/kern.ld -o kern/kern.elf $(kern_objects)
+kern.elf: kern_entry.o $(kern_objects) kern/kern.ld
+	$(LD) $(LDFLAGS) -T kern/kern.ld -o kern/kern.elf kern_entry.o $(kern_objects)
 
 kern_entry.o: kern/kernel.c kern/kernel.h
 	$(CC) $(CFLAGS) -c kern/kernel.c -o kern_entry.o 
 
 vm_init.o: kern/vm/page_init.c kern/vm/page_defines.h
-	$(CC) $(CFLAGS) -c kern/vm/page_init.c -o vm_init.o 
+	$(CC) $(CFLAGS) -c kern/vm/page_init.c -o vm_init.o
+
+kernel_test.elf : kern/kernel_for_test.o $(kern_objects) kern/kern.ld
+	$(LD) $(LDFLAGS) -T kern/kern.ld -o kern/kern_test.elf kern/kernel_for_test.o $(kern_objects)
 
 clean:
 	rm -f firmware.ld

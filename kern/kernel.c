@@ -9,9 +9,7 @@
 int kernel_entry() {
 	uart_spin_puts("Hello kernel!\r\n");
 	init_first_page_table();
-	// alloc_init();
-	// char* addr = alloc_pages(2);
-	// puthex((unsigned)addr);
-	// free_pages(addr, 1);
+	alloc_init();
+
 	while (1);
 }

@@ -91,6 +91,13 @@ void remove_low_mapping() {
  * for the kernel.
  **/
 void init_first_page_table() {
+	asm volatile(
+		"ldr r1, [fp, #0]\r\n"
+		"ldr r0, =0x80000000\r\n"
+		"add r0, r1, r0\r\n"
+		"str r0, [fp, #0]\r\n"
+	);
+
 	init_mapping();
 	devices_mapping();
 	enable_mmu(); 	//assemble code in vm/enable_mmu.S
