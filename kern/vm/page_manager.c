@@ -32,7 +32,8 @@ void alloc_init() {
   * if fail to alloc return 0, else return the base address of the pages
  **/
 char* alloc_pages(int pnum) {
-	uart_spin_puts("alloc pages\r\n");
+	uart_spin_puts("alloc pages ");
+	puthex(pnum);
 	mblock_t *block = kmem.freelist;
 	mblock_t *last = NULL;	
 	char *ret = NULL;
@@ -88,7 +89,8 @@ void free_pages(char *addr, unsigned size) {
 		return;
 	}
 
-	uart_spin_puts("free pages\r\n");
+	uart_spin_puts("free pages ");
+	puthex(size);
 	mblock_t *block = kmem.freelist;
 	mblock_t *last = NULL;
 	while (block != NULL) {

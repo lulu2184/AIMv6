@@ -3,10 +3,18 @@
 
 slab_pool_t* slab_pool_header;
 
+void slab_alloc(slab_pool_t *slab_pool, int slab_num);
+
 void fail() {
 	while (1);
 }
 
+/**
+ *  Initialize multiple slabs.
+ *  @param addr: base address of slabs
+ *  @param pnum: the number of slabs(in continuous pages)
+ *  @param obj_size: the size of the object in slabs(in bytes)
+ **/
 void slab_init(unsigned addr, int pnum, int obj_size) {
 	slab_t* slab = (slab_t*)addr;
 	slab->obj_remain = 0;
@@ -26,18 +34,24 @@ void slab_init(unsigned addr, int pnum, int obj_size) {
 	}
 }
 
+/**
+ *  Initialize slab pools. There are multiple pools one for each object size.
+ *	Each pool has multiple slabs. At the beginning, each pools have 4 empty slabs.
+ **/
 void slab_pools_init() {
 	unsigned addr = (unsigned)alloc_pages(1);
 	slab_pool_t* now = (slab_pool_t*)addr;
 	slab_pool_t* last = NULL;
-	for (int i = SLAB_SIZE_NUM - 1; i >= 0; i++) {
+	for (int i = SLAB_SIZE_NUM - 1; i >= 0; i--) {
 		now->obj_size = slab_size_list[i];
 		now->next = last;
+		slab_alloc(now, 4);
 		last = now;
 	}
+	uart_spin_puts("slabs init finish\r\n");
 }
 
-void* slab_alloc(slab_pool_t *slab_pool, int slab_num) {
+void slab_alloc(slab_pool_t *slab_pool, int slab_num) {
 	unsigned addr = (unsigned)alloc_pages(4);
 	slab_pool->slab_header = (slab_t*)addr;
 	slab_init(addr, 4, slab_pool->obj_size);
