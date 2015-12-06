@@ -8,13 +8,11 @@ enable_mmu:
  	mcr p15, 0, r0, c8, c7, 0
  	ldr r0, =0x55555555
  	mcr p15, 0, r0, c3, c0, 0
+ 	isb
 	mrc p15, 0, r0, c1, c0, 0
 	orr r0, r0, #0x1
 	mcr p15, 0, r0, c1, c0, 0
-	nop
-	nop
-	nop
-	nop
+	isb
 	ldr r0, =0x80000000
 	add r14, r0
 	mov r15, r14

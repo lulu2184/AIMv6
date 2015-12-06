@@ -49,14 +49,9 @@ int kernel_entry() {
 		"mov sp, fp"
 	);
 	remove_low_mapping();
-	// asm volatile("mov %0, sp" : "=r"(tmp));
-	// puthex(tmp);
 	uart_spin_puts("Kernel space!: PC = ");
 	asm volatile("mov %0 ,pc" : "=r"(tmp));
 	puthex(tmp);
-	// TODO!! if delete the two lines below, the following codes will not be executed.
-	// asm volatile("mov %0 ,pc" : "=r"(tmp));
-	// puthex(tmp);
 	alloc_init();
 	pages_manager_test();
 
