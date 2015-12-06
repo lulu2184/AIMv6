@@ -15,17 +15,15 @@ typedef struct slab_pool_s{
 	int obj_size;
 	int max_obj_size;
 	int free_slabs;
+	int obj_inuse;
 	struct slab_pool_s* next;
 
 	slab_t* slab_header;
-	slab_t* slab_tail;
 }slab_pool_t;
-
-const int SLAB_SIZE_NUM = 6;
-const int slab_size_list[6] = {8, 16, 64, 128, 512, 1024};
 
 void slab_pools_init();
 void obj_free();
 void* obj_alloc();
+int get_objinuse(int obj_size); 
 
 #endif

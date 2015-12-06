@@ -106,5 +106,4 @@ void init_first_page_table() {
 	uart_spin_puts("Now, PC should run on kernel address! PC = ");
 	asm volatile("mov %0 ,pc" : "=r"(tmp_pc));
 	puthex(tmp_pc);
-	remove_low_mapping();
 }		

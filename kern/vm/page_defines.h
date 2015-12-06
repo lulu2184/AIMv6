@@ -81,6 +81,7 @@ typedef struct pte_s {
 void fill_pme_common(pme_t *pme);
 void init_mapping();
 void devices_mapping();
+void remove_low_mapping();
 void init_first_page_table();
 
 // In page_manager.c
