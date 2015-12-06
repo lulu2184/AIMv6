@@ -52,6 +52,8 @@ char* alloc_pages(int pnum) {
 		last = block;
 		block = block->next;
 	}
+	if (ret == NULL)
+		uart_spin_puts("Allocate fails.\r\n");
 	return ret;
 }
 
@@ -93,8 +95,13 @@ void free_pages(char *addr, unsigned size) {
 	puthex(size);
 	mblock_t *block = kmem.freelist;
 	mblock_t *last = NULL;
-	while (block != NULL) {
-		if ((unsigned)block->addr > (unsigned)addr) {
+	while (1) {
+		if (block == NULL || (unsigned)block->addr > (unsigned)addr) {
+			if (last != NULL && last->addr <= addr && last->addr + (last->size << PAGE_SHIFT) > addr) {
+				uart_spin_puts("The pages to be freed is not allocated.\r\n");
+				return;
+			}
+
 			if (last != NULL && last->addr + (last->size << PAGE_SHIFT) == addr) {
 				last->size += size;
 			} else {
@@ -108,28 +115,16 @@ void free_pages(char *addr, unsigned size) {
 					kmem.freelist = new_block;
 				last = new_block;
 			}
-			if (last->addr + (last->size << PAGE_SHIFT) == block->addr) {
+			if (block != NULL && last->addr + (last->size << PAGE_SHIFT) == block->addr) {
 				last->next = block ->next;
 				last->size = last->size + block->size;
 			}
 			uart_spin_puts("free finish.\r\n");	
 			return;
 		}
+		if (block == NULL) break;
 		last = block;
 		block = block->next;
 	}
-	if (last != NULL && last->addr + (last->size << PAGE_SHIFT) == addr) {
-		last->size += size;
-	} else {
-		mblock_t *new_block = (mblock_t*)addr;
-		new_block->next = NULL;
-		new_block->size = size;
-		new_block->addr = addr;
-		if (last != NULL) 
-			last->next = new_block;
-		else 
-			kmem.freelist = new_block;
-	}	
-	uart_spin_puts("free finish.\r\n");	
 	return;
 }

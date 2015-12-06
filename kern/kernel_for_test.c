@@ -35,6 +35,18 @@ void pages_manager_test() {
 	uart_spin_puts("PASS\r\n");
 }
 
+void pages_manager_test_exposure() {
+	uart_spin_puts("PAGES MANAGER TEST EXPOSE: \r\n");
+	for (int i = 0;; i = (i + 1) % 10 + 1){
+		char* addr = alloc_pages(i);
+		if (addr == NULL) {
+			uart_spin_puts("PAGES MANAGER TEST EXPOSE: ");
+			test_fail();
+		}
+		free_pages(addr, i);
+	}
+}
+
 void slab_manager_test() {
 	uart_spin_puts("SLABS MANAGER TEST: \r\n");
 	slab_pools_init();
@@ -54,6 +66,7 @@ int kernel_entry() {
 	puthex(tmp);
 	alloc_init();
 	pages_manager_test();
+	pages_manager_test_exposure();
 
 	uart_spin_puts("SP = ");
 	asm volatile("mov %0 ,sp" : "=r"(tmp));
