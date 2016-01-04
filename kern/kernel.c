@@ -8,6 +8,8 @@
 **/
 int kernel_entry() {
 	uart_spin_puts("Hello kernel!\r\n");
+	//initialize devices
+
 	init_first_page_table();
 	unsigned tmp;
 	asm volatile(
