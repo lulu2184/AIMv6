@@ -76,7 +76,7 @@ void slab_manager_test() {
 	uart_spin_puts("SLABS MANAGER TEST: PASS\r\n");
 }
 
-int kernel_entry() {
+int kernel_main() {
 	uart_spin_puts("Hello kernel!\r\n");
 	init_first_page_table();
 	unsigned tmp;

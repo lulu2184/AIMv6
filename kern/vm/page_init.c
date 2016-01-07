@@ -86,6 +86,13 @@ void remove_low_mapping() {
 	}
 }
 
+void move_SP() {
+	asm volatile(
+		"ldr r0, =0x80000000\r\n"
+		"add sp, sp, r0\r\n"
+		"add fp, fp, r0\r\n");
+}
+
 /**
  * Initialize mapping from virtual memory to physical memory
  * for the kernel.
@@ -102,6 +109,7 @@ void init_first_page_table() {
 	devices_mapping();
 	enable_mmu(); 	//assemble code in vm/enable_mmu.S
 	uart_spin_puts("enabled MMU\r\n");
+	move_SP();
 	unsigned tmp_pc;
 	uart_spin_puts("Now, PC should run on kernel address! PC = ");
 	asm volatile("mov %0 ,pc" : "=r"(tmp_pc));

@@ -35,12 +35,13 @@ void C_data_abort_handler() {
 
 void C_IRQ_handler() {
 	uart_spin_puts("IRQ abort handler.\r\n");
+
 }
 
 void print_spsr() {
 	int spsr;
 	asm volatile(
-		"msr r0, spsr\r\n"
+		"mrs r0, spsr\r\n"
 		"mov %0, r0" : "=r"(spsr));
 	uart_spin_puts("SPSR=");
 	puthex(spsr);
@@ -49,7 +50,7 @@ void print_spsr() {
 void print_cpsr() {
 	int cpsr;
 	asm volatile(
-		"msr r0, cpsr\r\n"
+		"mrs r0, cpsr\r\n"
 		"mov %0, r0" : "=r"(cpsr));
 	uart_spin_puts("CPSR=");
 	puthex(cpsr);

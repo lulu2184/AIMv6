@@ -1,4 +1,4 @@
-.global vector_table:
+.global vector_table
 
 vector_table:
 	nop // not used
