@@ -62,7 +62,11 @@ $(MBR_OBJS): EXTRA_CFLAGS := -Os
 
 mbr.elf: $(MBR_OBJS) boot/arch/$(ARCH)/$(MACH)/mbr.ld
 	$(LD) $(LDFLAGS) -T boot/arch/$(ARCH)/$(MACH)/mbr.ld -o $@ $^
-	
+
+INCFLAG		+= -I./kern
+
+CFLAGS		=  -Wall -fno-builtin -nostdinc -nostdlib -march=armv7-a -fpic
+CFLAGS		+= -mlittle-endian $(INCFLAG) -DMACH_$(UPPERMACH)	
 
 INCLUDE_LIBS = include/
 INCLUDE_SRCS = $(wildcard $(INCLUDE_LIBS)/puthex.c)

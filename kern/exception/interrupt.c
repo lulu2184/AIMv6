@@ -3,6 +3,9 @@
 #include <drivers/serial/uart.h>
 
 void interrupt_init() {
+	init_IRQ_SP();
+	uart_spin_puts("back");
+	init_SVC_SP();
 	asm volatile(
 		"ldr r0, =vector_table\r\n"
 		"ldr r1, =0x80000000\r\n"

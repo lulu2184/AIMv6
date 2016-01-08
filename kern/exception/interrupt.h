@@ -12,6 +12,20 @@ void print_cpsr();
 void system_call(unsigned number);
 
 void enter_user_mode();
-void enter_sys_mode();
+
+static inline void enter_sys_mode() {
+	asm volatile(
+		//"mov r1, lr\r\n"
+		"mrs r0, cpsr\r\n"
+		"orr r0, r0, #0xF\r\n"
+		"msr cpsr, r0\r\n"
+		:::"r0");
+		// "isb\r\n"
+		// "mov pc, r1"
+		// ::: "r0", "r1");
+}
+
+void init_IRQ_SP();
+void init_SVC_SP();
 
 #endif

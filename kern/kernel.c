@@ -27,8 +27,13 @@ int kernel_main() {
 	uart_spin_puts("Hello kernel!\r\n");
 	//initialize devices
 	interrupt_disable();
+	print_cpsr();
 
 	init_first_page_table();
+	asm volatile(
+		"ldr r0, =0x80000000\r\n"
+		"add sp, sp, r0\r\n"
+		"add fp, fp, r0\r\n");
 	
 	remove_low_mapping();
 	print_PC();
@@ -43,7 +48,6 @@ int kernel_main() {
 	puthex(gtc_time & 0xFFFFFFFF);
 
 	print_cpsr();
-	uart_spin_puts("change to user mode\r\n");
 	interrupt_init();
 	uart_spin_puts("finish interrupt init\r\n");
 	interrupt_enable();

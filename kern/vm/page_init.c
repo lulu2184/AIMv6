@@ -28,9 +28,9 @@ void init_mapping() {
 		fill_pme_common(pme);
 		pme->B = 0;			
 		pme->C = 0;			
-		pme->AP_L = 0x2;	//No user mode write AP: 011
+		pme->AP_L = 0x1;	//Privileged access only AP: 001
 		pme->TEX = 0x0; 	
-		pme->AP_H = 0x0; 	//No user mode write
+		pme->AP_H = 0x0; 	//Privileged access only
 		pme->S = 0x1;		//sharable
 		pme->ng = 0;		//global
 		pme->base = (unsigned)addr >> MEM_SECTION_SHIFT;
@@ -43,9 +43,9 @@ void init_mapping() {
 		fill_pme_common(pme);
 		pme->B = 0;			
 		pme->C = 0;			
-		pme->AP_L = 0x2;	//No user mode write AP: 001
+		pme->AP_L = 0x1;	//No user mode write AP: 001
 		pme->TEX = 0x0; 	
-		pme->AP_H = 0x0; 	//No user mode write
+		pme->AP_H = 0x0; 	//Privileged access only
 		pme->S = 0x1;		//sharable
 		pme->ng = 0;		//global
 		pme->base = (unsigned)addr >> MEM_SECTION_SHIFT;
@@ -86,13 +86,6 @@ void remove_low_mapping() {
 	}
 }
 
-void move_SP() {
-	asm volatile(
-		"ldr r0, =0x80000000\r\n"
-		"add sp, sp, r0\r\n"
-		"add fp, fp, r0\r\n");
-}
-
 /**
  * Initialize mapping from virtual memory to physical memory
  * for the kernel.
@@ -109,7 +102,6 @@ void init_first_page_table() {
 	devices_mapping();
 	enable_mmu(); 	//assemble code in vm/enable_mmu.S
 	uart_spin_puts("enabled MMU\r\n");
-	move_SP();
 	unsigned tmp_pc;
 	uart_spin_puts("Now, PC should run on kernel address! PC = ");
 	asm volatile("mov %0 ,pc" : "=r"(tmp_pc));
