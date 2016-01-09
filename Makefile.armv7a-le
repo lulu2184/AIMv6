@@ -28,7 +28,7 @@ INCFLAG		=  -I. -I./include -I./include/arch/$(ARCH)
 INCFLAG		+= -I./include/arch/$(ARCH)/asm/mach-$(MACH)
 
 CFLAGS		=  -Wall -fno-builtin -nostdinc -nostdlib -march=armv7-a -fpic
-CFLAGS		+= -mlittle-endian $(INCFLAG) -DMACH_$(UPPERMACH)
+CFLAGS		+= -mlittle-endian $(INCFLAG) -DMACH_$(UPPERMACH) -O2
 
 LDFLAGS		=  -EL -O -N
 
@@ -66,7 +66,7 @@ mbr.elf: $(MBR_OBJS) boot/arch/$(ARCH)/$(MACH)/mbr.ld
 INCFLAG		+= -I./kern
 
 CFLAGS		=  -Wall -fno-builtin -nostdinc -nostdlib -march=armv7-a -fpic
-CFLAGS		+= -mlittle-endian $(INCFLAG) -DMACH_$(UPPERMACH)	
+CFLAGS		+= -mlittle-endian $(INCFLAG) -DMACH_$(UPPERMACH) -O2
 
 INCLUDE_LIBS = include/
 INCLUDE_SRCS = $(wildcard $(INCLUDE_LIBS)/puthex.c)
