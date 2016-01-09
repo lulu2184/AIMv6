@@ -73,11 +73,11 @@ INCLUDE_SRCS = $(wildcard $(INCLUDE_LIBS)/puthex.c)
 KERN_VM = $(wildcard kern/vm/*.c)
 KERN_INTERRUPT = $(wildcard kern/exception/*.c)
 
-kern_objects =  kern/arch/$(ARCH)/enable_mmu.o \
+kern_objects =  kern/exception/interrupt_asm.o \
+				kern/kernel_entry.o \
+				kern/arch/$(ARCH)/enable_mmu.o \
 				$(KERN_VM:.c=.o) \
 				$(KERN_INTERRUPT:.c=.o) \
-				kern/kernel_entry.o \
-				kern/exception/interrupt_asm.o \
 				drivers/serial/uart.o \
 				drivers/serial/uart-zynq7000.o \
 				drivers/clock/gtc-a9mpcore.o \

@@ -42,21 +42,38 @@ int kernel_main() {
 	alloc_init();
 	print_SP();
 
-	uart_spin_puts("TIME : \r\n");
-	u64 gtc_time = gtc_get_time();
-	puthex(gtc_time >> 32);
-	puthex(gtc_time & 0xFFFFFFFF);
-
 	print_cpsr();
 	interrupt_init();
 	uart_spin_puts("finish interrupt init\r\n");
+
 	interrupt_enable();
 
-	uart_spin_puts("TIME : \r\n");
-	gtc_time = gtc_get_time();
-	puthex(gtc_time >> 32);
-	puthex(gtc_time & 0xFFFFFFFF);
+	u32 tmp;
+	uart_spin_puts("vector table : ");
+	asm volatile(
+		"ldr r0, =vector_table\r\n"
+		"mov %0, r0\r\n"
+		:"=r"(tmp));
+	puthex(tmp);
 
+	asm volatile(
+		"mrc p15, 0, r0, c12, c0, 0\r\n"
+		"mov %0, r0\r\n"
+		:"=r"(tmp));
+	puthex(tmp);
+
+	uart_spin_puts("CSTR = ");
+	asm volatile(
+		"MRC p15, 0, r0, c1, c0, 0\r\n"
+		"mov %0, r0"
+		:"=r"(tmp));
+	puthex(tmp);
+
+	print_cpsr();
+
+	uart_spin_puts("test interrupts\r\n");
+	asm volatile("swi 0");
+	uart_spin_puts("aroo\r\n");
 
 	while (1);
 }
