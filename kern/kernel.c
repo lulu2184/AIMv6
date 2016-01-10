@@ -73,7 +73,7 @@ int kernel_main() {
 	ptc_init(0x200000);
 	ptc_enable();
 
-
+	
 
 	while (1);
 }

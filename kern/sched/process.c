@@ -3,6 +3,7 @@
 #include <vm/user_page.h>
 #include <vm/slab_defines.h>
 #include "elf_loader.h"
+#include "scheduler.h"
 
 unsigned max_pid = 0;
 
@@ -19,10 +20,20 @@ unsigned init_process(unsigned process_num) {
 	pcb->pid = max_pid++;
 
 	// Add pcb to the scheduler queue
+	add_pcb(pcb);
 
 	return addr;
 }
 
 void destory_process(unsigned process_num) {
 
+}
+
+void setup_idle_process() {
+	pcb_t *pcb = (pcb_t*)obj_alloc(PCB_SIZE);
+	pcb->page_table_addr = PRESERVED_MEM_BASE + 0x80000000;
+	pcb->pid = max_pid++;
+
+	//Add pcb to the scheduler queue
+	add_pcb(pcb);
 }
