@@ -15,43 +15,53 @@ void init_IRQ_SP();
 void init_SVC_SP();
 void init_abort_SP();
 
+void enable_peripheral_interrupt();
+
 static inline void enter_user_mode() {
 	asm volatile(
+		"isb\r\n"
 		"mrs r0, cpsr\r\n"
 		"bic r0, r0, #0xF\r\n"
 		"msr cpsr, r0\r\n"
-	);
+		"isb"
+		:::"r0");
 }
 
 static inline void enter_sys_mode() {
 	asm volatile(
+		"isb\r\n"
 		"mrs r0, cpsr\r\n"
 		"orr r0, r0, #0xF\r\n"
 		"msr cpsr, r0\r\n"
+		"isb\r\n"
 		:::"r0");
 }
 
 static inline void enter_svc_mode() {
 	asm volatile(
+		"isb\r\n"
 		"mrs r0, cpsr\r\n"
 		"bic r0, r0, #0xF\r\n"
 		"orr r0, r0, #0x3\r\n"
 		"msr cpsr, r0\r\n"
+		"isb"
 		::: "r0");
 }
 
 static inline void enter_irq_mode() {
 	asm volatile(
+		"isb\r\n"
 		"mrs r0, cpsr\r\n"
 		"bic r0, r0, #0xF\r\n"
 		"orr r0, r0, #0x2\r\n"
 		"msr cpsr, r0\r\n"
 		"isb\r\n"
-		::: "r0", "r1");
+		::: "r0");
 }
 
 static inline void enter_abort_mode() {
 	asm volatile(
+		"isb\r\n"
 		"mrs r0, cpsr\r\n"
 		"bic r0, r0, #0xF\r\n"
 		"orr r0, r0, #0x7\r\n"

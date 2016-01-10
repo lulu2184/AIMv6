@@ -80,7 +80,7 @@ kern_objects =  kern/exception/interrupt_asm.o \
 				$(KERN_INTERRUPT:.c=.o) \
 				drivers/serial/uart.o \
 				drivers/serial/uart-zynq7000.o \
-				drivers/clock/gtc-a9mpcore.o \
+				drivers/clock/ptc-a9mpcore.o \
 				$(INCLUDE_SRCS:.c=.o)
 
 kern.elf: kern_main.o $(kern_objects) kern/kern.ld

@@ -34,9 +34,10 @@ SVC_handler:
 
 prefetch_abort_handler:
 	stmfd sp!, {r0-r12, lr}
+	mov r0, lr
+	bl puthex
 	bl C_prefetch_abort_handler
 	ldmfd sp!, {r0-r12, pc}^
-	subs sp, lr, #4
 
 data_abort_handler:
 	stmfd sp!, {r0-r12, lr}
@@ -44,8 +45,13 @@ data_abort_handler:
 	ldmfd sp!, {r0-r12, pc}^
 
 IRQ_handler:
+	sub lr, lr, #4
 	stmfd sp!, {r0-r12, lr}
+	mrs r0, spsr
+	stmfd sp!, {r0, r3}
 	bl C_IRQ_handler
+	ldmfd sp!, {r0, r3}
+	msr spsr_cxsf, r0
 	ldmfd sp!, {r0-r12, pc}^
 
 

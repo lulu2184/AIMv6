@@ -5,7 +5,7 @@
 #include "arch/armv7a-le/asm/irq.h"
 #include <drivers/serial/uart.h>
 #include <drivers/serial/uart-zynq7000.h>
-#include <drivers/clock/gtc-a9mpcore.h>
+#include <drivers/clock/ptc-a9mpcore.h>
 
 void print_PC() {
 	u32 tmp;
@@ -19,6 +19,12 @@ void print_SP() {
 	uart_spin_puts("SP = ");
 	asm volatile("mov %0 ,sp" : "=r"(tmp));
 	puthex(tmp);
+}
+
+void test_svc() {
+	uart_spin_puts("test interrupts\r\n");
+	asm volatile("swi 0");
+	uart_spin_puts("aroo\r\n");
 }
 
 int kernel_main() {
@@ -71,9 +77,26 @@ int kernel_main() {
 
 	print_cpsr();
 
-	uart_spin_puts("test interrupts\r\n");
-	asm volatile("swi 0");
-	uart_spin_puts("aroo\r\n");
+	test_svc();
+
+	// asm volatile(
+	// 	"mrc p15, 0, r0, c1, c0, 0\r\n"
+	// 	"ldr r1, =0x1020000\r\n"
+	// 	"orr r0, r0, r1\r\n"
+	// 	"mcr p15, 0, r0, c1, c0, 0"
+	// 	::: "r0", "r1");
+
+	
+
+	ptc_init(0x200000);
+	ptc_enable();
+	uart_spin_puts("test clock interrupt\r\n");
+
+	while (1) {
+		u32 tmp = ptc_get_time();
+		puthex(tmp);
+	}
+
 
 	while (1);
 }
