@@ -22,8 +22,8 @@ typedef struct slab_pool_s{
 }slab_pool_t;
 
 void slab_pools_init();
-void obj_free();
-void* obj_alloc();
+void obj_free(unsigned addr, int obj_size);
+void* obj_alloc(int obj_size);
 int get_objinuse(int obj_size); 
 
 #endif

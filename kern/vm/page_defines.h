@@ -13,6 +13,8 @@
 #define PY_SAFE_BEGIN		0x2000000
 #define PY_SAFE_END			PRESERVED_MEM_BASE
 #define STACK_START			0xF00000
+#define L1_PTE_ENTRIES		0x4000	//4096	
+#define L2_PDE_ENTRIES		256
 
 #define NULL 0
 
@@ -56,7 +58,7 @@ typedef struct pme_s {
 	unsigned base : 12;	
 } pme_t;
 
-typedef struct pde_s {
+typedef struct pte_s {
 	unsigned type : 2;
 	unsigned SBZ1 : 1;
 	unsigned NS : 1;
@@ -64,9 +66,9 @@ typedef struct pde_s {
 	unsigned domain : 4;
 	unsigned empty : 1;
 	unsigned pte_base : 22;
-} pde_t;
+} pte_t;
 
-typedef struct pte_s {
+typedef struct pde_s {
 	unsigned type : 2;
 	unsigned memattr : 2;
 	unsigned AP : 2;
@@ -75,7 +77,7 @@ typedef struct pte_s {
 	unsigned S : 1;
 	unsigned ng : 1;
 	unsigned base : 20;
-} pte_t;
+} pde_t;
 
 // In page_init.c
 void fill_pme_common(pme_t *pme);
@@ -89,6 +91,7 @@ void alloc_init();
 char* alloc_pages(int pnum);
 void free_pages(char *addr, unsigned size);
 unsigned get_kmem_first_size();
+char* alloc_aligned_pages(int pnum, int aligned_shift);
 
 #endif
 
