@@ -1,5 +1,5 @@
+#include "syscall.h"
 #include "puthex.h"
-#include "interrupt.h"
 #include <drivers/serial/uart.h>
 
 void system_call(unsigned number) {

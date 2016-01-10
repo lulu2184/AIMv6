@@ -1,10 +1,11 @@
 #ifndef _PROCESS_H_
 #define _PROCESS_H_
 
-#define PCB_SIZE 12
+#define PCB_SIZE 16
 
 typedef struct pcb_s {
 	unsigned pid;
+	struct pcb_s* parent;
 	unsigned page_table_addr;
 	unsigned kern_SP;
 }pcb_t;
