@@ -3,9 +3,11 @@
 #include "puthex.h"
 #include "exception/interrupt.h"
 #include "arch/armv7a-le/asm/irq.h"
+#include "sched/scheduler.h"
 #include <drivers/serial/uart.h>
 #include <drivers/serial/uart-zynq7000.h>
 #include <drivers/clock/ptc-a9mpcore.h>
+#include "sched/process.h"
 
 void print_PC() {
 	u32 tmp;
@@ -25,6 +27,15 @@ void test_svc() {
 	uart_spin_puts("test interrupts\r\n");
 	asm volatile("swi 0");
 	uart_spin_puts("aroo\r\n");
+}
+
+void test_clock_interrupt() {
+	uart_spin_puts("test clock interrupt\r\n");
+
+	while (1) {
+		u32 tmp = ptc_get_time();
+		puthex(tmp);
+	}
 }
 
 int kernel_main() {
@@ -54,48 +65,14 @@ int kernel_main() {
 
 	interrupt_enable();
 
-	u32 tmp;
-	uart_spin_puts("vector table : ");
-	asm volatile(
-		"ldr r0, =vector_table\r\n"
-		"mov %0, r0\r\n"
-		:"=r"(tmp));
-	puthex(tmp);
-
-	asm volatile(
-		"mrc p15, 0, r0, c12, c0, 0\r\n"
-		"mov %0, r0\r\n"
-		:"=r"(tmp));
-	puthex(tmp);
-
-	uart_spin_puts("CSTR = ");
-	asm volatile(
-		"MRC p15, 0, r0, c1, c0, 0\r\n"
-		"mov %0, r0"
-		:"=r"(tmp));
-	puthex(tmp);
-
 	print_cpsr();
 
 	test_svc();
-
-	// asm volatile(
-	// 	"mrc p15, 0, r0, c1, c0, 0\r\n"
-	// 	"ldr r1, =0x1020000\r\n"
-	// 	"orr r0, r0, r1\r\n"
-	// 	"mcr p15, 0, r0, c1, c0, 0"
-	// 	::: "r0", "r1");
-
-	
+	test_clock_interrupt();
 
 	ptc_init(0x200000);
 	ptc_enable();
-	uart_spin_puts("test clock interrupt\r\n");
 
-	while (1) {
-		u32 tmp = ptc_get_time();
-		puthex(tmp);
-	}
 
 
 	while (1);

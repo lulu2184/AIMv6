@@ -4,11 +4,12 @@
 #include <panic.h>
 #include <vm/slab_defines.h>
 
-void setup_page_table() {
+pte_t* setup_page_table() {
 	char* entry = alloc_aligned_pages(4, 2);
 	memset(entry, 0, PAGE_SIZE << 1);
 	char* kt_entry = (void *)(PRESERVED_MEM_BASE + (PAGE_SIZE << 1));
 	memcpy(entry, kt_entry, PAGE_SIZE << 1);
+	return (pte_t*)entry;
 }
 
 void remove_L2_page_table(unsigned base_addr) {

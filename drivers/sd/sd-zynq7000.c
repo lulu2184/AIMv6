@@ -17,6 +17,7 @@
 #include <sleep.h>
 
 #include <drivers/sd/sd-zynq7000.h>
+#include <drivers/clock/gtc-a9mpcore.h>
 
 /*
  * Initialize the controller.
