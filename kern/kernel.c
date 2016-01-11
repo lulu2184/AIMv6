@@ -8,7 +8,7 @@
 #include <drivers/serial/uart-zynq7000.h>
 #include <drivers/clock/ptc-a9mpcore.h>
 #include "sched/process.h"
-#include "sched/process.h"
+#include "vm/slab_defines.h"
 
 void print_PC() {
 	u32 tmp;
@@ -41,6 +41,8 @@ void test_clock_interrupt() {
 
 void single_proc_test() {
 	unsigned addr = init_process(1);
+	uart_spin_puts("proc entry point : ");
+	puthex(addr);
 	enter_user_mode();
 	asm volatile(
 		"isb\r\n"
@@ -62,7 +64,8 @@ int kernel_main() {
 		"ldr r0, =0x80000000\r\n"
 		"add sp, sp, r0\r\n"
 		"add fp, fp, r0\r\n"
-		"add pc, pc, r0\r\n");
+		"add pc, pc, r0\r\n"
+		"isb\r\n");
 	
 	uart_spin_puts("Now, PC should run on kernel address! ");
 	print_PC();
@@ -72,22 +75,20 @@ int kernel_main() {
 	uart_spin_puts("Kernel space!\r\n");
 	print_PC();
 	alloc_init();
+	slab_pools_init();
 	print_SP();
 
 	print_cpsr();
 	interrupt_init();
 	uart_spin_puts("finish interrupt init\r\n");
 
-	interrupt_enable();
-
 	print_cpsr();
-
-	test_svc();
-	test_clock_interrupt();
-
 	ptc_init(0x200000);
 	ptc_enable();
+	// test_clock_interrupt();
 
+	interrupt_enable();
+	// test_svc();
 	single_proc_test();
 
 	while (1);

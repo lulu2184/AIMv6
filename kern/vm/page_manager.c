@@ -65,12 +65,12 @@ char* alloc_pages(int pnum) {
  **/
 char* alloc_aligned_pages(int pnum, int aligned_shift) {
 	void *addr = alloc_pages(pnum + (1 << aligned_shift) - 1);
-	void *alloc_end = (void*)(((unsigned)addr >> PAGE_SHIFT) + (pnum + (1 << aligned_shift) - 1));
+	unsigned alloc_end = ((unsigned)addr >> PAGE_SHIFT) + (pnum + (1 << aligned_shift) - 1);
 	while (1) {
 		int page_code = (unsigned)addr >> PAGE_SHIFT;
 		if ((page_code & ((1 << aligned_shift) - 1)) == 0) {
-			void* end = addr + (pnum  << PAGE_SHIFT);
-			free_pages(end, alloc_end - end);
+			unsigned end = ((unsigned)addr >> PAGE_SHIFT) + pnum;
+			free_pages((char*)(end << PAGE_SHIFT), alloc_end - end);
 			return (char*)addr;
 		}
 		free_pages(addr, 1);

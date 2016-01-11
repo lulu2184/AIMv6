@@ -62,7 +62,7 @@ void C_SVC_handler(unsigned number, unsigned *reg) {
 			system_call(reg);
 	}
 	uart_spin_puts("Finish system call!\r\n");
-	uart_spin_getbyte();
+	// uart_spin_getbyte();
 	asm volatile(
 		"mov sp, %0\r\n"
 		"mov lr, %1"
@@ -112,7 +112,7 @@ void C_IRQ_handler(u32 old_lr) {
 	} else {
 		out32(ICCEOIR, interrupt_ID);
 	}
-	uart_spin_getbyte();
+	// uart_spin_getbyte();
 	asm volatile(
 		"mov sp, %0\r\n"
 		"mov lr, %1"
