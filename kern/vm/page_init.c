@@ -23,7 +23,7 @@ void init_mapping() {
 	/* mapping for non-preserved address PA <=> VA */
 	pme_t *page_table = (void *)PRESERVED_MEM_BASE;
 	pme_t *pme;
-	for (unsigned *addr = 0; addr < (unsigned *)PYMEM_SIZE; addr += MEM_SECTION_SIZE >> 2) {
+	for (char *addr = 0; addr < (char *)PYMEM_SIZE; addr += MEM_SECTION_SIZE) {
 		pme = page_table + ((unsigned)addr >> MEM_SECTION_SHIFT);
 		fill_pme_common(pme);
 		pme->B = 0;			
@@ -37,8 +37,8 @@ void init_mapping() {
 	}
 
 	/* mapping for preserved and non-preserved address PA <=> VA + KERN_BASE*/
-	page_table = (void *)PRESERVED_MEM_BASE + (KERN_BASE >> (MEM_SECTION_SHIFT - 2));
-	for (unsigned *addr = 0; addr < (unsigned *)PYMEM_SIZE; addr += MEM_SECTION_SIZE >> 2) {
+	page_table = (pme_t *)PRESERVED_MEM_BASE + (KERN_BASE >> MEM_SECTION_SHIFT);
+	for (char* addr = 0; addr < (char *)PYMEM_SIZE; addr += MEM_SECTION_SIZE) {
 		pme = page_table + ((unsigned)addr >> MEM_SECTION_SHIFT);
 		fill_pme_common(pme);
 		pme->B = 0;			
@@ -59,17 +59,17 @@ void init_mapping() {
 void devices_mapping() {
 	/* entry for external device */
 	pme_t *page_table = (void *)PRESERVED_MEM_BASE;
-	for (unsigned *addr = (unsigned *)EXTMEM_BASE; addr - MEM_SECTION_SIZE < addr; addr += MEM_SECTION_SIZE >> 2) {
-		pme_t *pme = page_table + ((unsigned)addr >> MEM_SECTION_SHIFT);
+	for (unsigned addr = EXTMEM_BASE >> MEM_SECTION_SHIFT; addr < (0xFFFFFFFF >> MEM_SECTION_SHIFT); addr++) {
+		pme_t *pme = page_table + addr;
 		fill_pme_common(pme);
 		pme->B = 0;			//device
 		pme->C = 0;			//device
-		pme->AP_L = 0x3;	//Privileged access only AP: 001
+		pme->AP_L = 0x1;	//Privileged access only AP: 001
 		pme->TEX = 0; 		//device
 		pme->AP_H = 0x0;	//Privileged access only
 		pme->S = 0x1;		//sharable
 		pme->ng = 0;		//Non-global
-		pme->base = (unsigned)addr >> MEM_SECTION_SHIFT;
+		pme->base = addr;
 	}
 }
 
@@ -86,24 +86,36 @@ void remove_low_mapping() {
 	}
 }
 
+static inline void enable_mmu() {
+	asm volatile(
+		"mov r0, #0x1F00\r\n"
+		"lsl r0, r0, #0x10\r\n"
+		"mcr p15, 0, r0, c2, c0, 0\r\n"
+		"mov r0, #0\r\n"
+ 		"mcr p15, 0, r0, c8, c7, 0\r\n"
+ 		"ldr r0, =0x55555555\r\n"
+ 		"mcr p15, 0, r0, c3, c0, 0\r\n"
+ 		"isb\r\n"
+		"mrc p15, 0, r0, c1, c0, 0\r\n"
+		"orr r0, r0, #0x1\r\n"
+		"mcr p15, 0, r0, c1, c0, 0\r\n"
+		"isb");	
+}
+
 /**
  * Initialize mapping from virtual memory to physical memory
  * for the kernel.
  **/
 void init_first_page_table() {
 	asm volatile(
-		"ldr r1, [fp, #0]\r\n"
+		"ldr r1, [sp, #0]\r\n"
 		"ldr r0, =0x80000000\r\n"
 		"add r0, r1, r0\r\n"
-		"str r0, [fp, #0]\r\n"
+		"str r0, [sp, #0]\r\n"
 	);
-
+	uart_spin_puts("init first page table\r\n");
 	init_mapping();
 	devices_mapping();
-	enable_mmu(); 	//assemble code in vm/enable_mmu.S
+	enable_mmu();
 	uart_spin_puts("enabled MMU\r\n");
-	unsigned tmp_pc;
-	uart_spin_puts("Now, PC should run on kernel address! PC = ");
-	asm volatile("mov %0 ,pc" : "=r"(tmp_pc));
-	puthex(tmp_pc);
 }		

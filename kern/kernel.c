@@ -61,8 +61,12 @@ int kernel_main() {
 	asm volatile(
 		"ldr r0, =0x80000000\r\n"
 		"add sp, sp, r0\r\n"
-		"add fp, fp, r0\r\n");
+		"add fp, fp, r0\r\n"
+		"add pc, pc, r0\r\n");
 	
+	uart_spin_puts("Now, PC should run on kernel address! ");
+	print_PC();
+
 	remove_low_mapping();
 	print_PC();
 	uart_spin_puts("Kernel space!\r\n");
