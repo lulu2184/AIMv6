@@ -13,5 +13,6 @@ typedef struct pcb_s {
 unsigned init_process(unsigned program_num);
 void destroy_process(unsigned program_num);
 void setup_idle_process();
+pcb_t* create_pcb();
 
 #endif

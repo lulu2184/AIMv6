@@ -4,6 +4,7 @@
 #include <config.h>
 #include <asm/io.h>
 #include <drivers/clock/ptc-a9mpcore.h>
+#include <syscalls/syscalls.h>
 
 #define ICD_OFFSET 0x1000
 #define ICC_OFFSET 0x0100
@@ -55,12 +56,10 @@ void C_SVC_handler(unsigned number, unsigned *reg) {
 		"mov %1, lr"
 		:"=r"(tmp_sp), "=r"(tmp_lr));
 	switch(number) {
-		case 0:
-			break; //SVC number 0 code
 		case 1:
 			break; //SVC number 1 code
 		default:
-			system_call(reg[0]);
+			system_call(reg);
 	}
 	uart_spin_puts("Finish system call!\r\n");
 	uart_spin_getbyte();

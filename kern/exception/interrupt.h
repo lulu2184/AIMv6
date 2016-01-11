@@ -9,8 +9,6 @@ void C_IRQ_handler();
 void print_spsr();
 void print_cpsr();
 
-void system_call(unsigned number);
-
 void init_IRQ_SP();
 void init_SVC_SP();
 void init_abort_SP();

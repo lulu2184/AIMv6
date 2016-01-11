@@ -10,7 +10,7 @@ unsigned load_elf(unsigned program_num, pte_t *pte) {
 	if (program_num == 0) 
 		program_start = 0;
 	else 
-		program_start = 0; 
+		program_start = 0xA0000000; 
 
 	volatile u8 *header_start = (u8*)alloc_pages(1);
 	sd_dma_spin_read((u32)header_start, 2, program_start);

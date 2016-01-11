@@ -8,6 +8,7 @@
 #include <drivers/serial/uart-zynq7000.h>
 #include <drivers/clock/ptc-a9mpcore.h>
 #include "sched/process.h"
+#include "sched/process.h"
 
 void print_PC() {
 	u32 tmp;
@@ -36,6 +37,16 @@ void test_clock_interrupt() {
 		u32 tmp = ptc_get_time();
 		puthex(tmp);
 	}
+}
+
+void single_proc_test() {
+	unsigned addr = init_process(1);
+	enter_user_mode();
+	asm volatile(
+		"isb\r\n"
+		"mov pc, %0\r\n"
+		"nop\r\n"
+		::"r"(addr));
 }
 
 int kernel_main() {
@@ -73,7 +84,7 @@ int kernel_main() {
 	ptc_init(0x200000);
 	ptc_enable();
 
-
+	single_proc_test();
 
 	while (1);
 }
