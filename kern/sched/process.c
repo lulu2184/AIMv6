@@ -9,7 +9,6 @@ unsigned max_pid = 0;
 
 // return address of entry point of the new process
 unsigned init_process(unsigned process_num) {
-	uart_spin_puts("2");
 	pcb_t *pcb = (pcb_t*)obj_alloc(PCB_SIZE);
 	// initialize kernel stack
 	pcb->kern_SP = (unsigned)alloc_pages(1) + PAGE_SIZE - 4;
@@ -17,10 +16,16 @@ unsigned init_process(unsigned process_num) {
 	pcb->page_table_addr = (unsigned)setup_page_table();
 	// load elf
 	unsigned addr = (unsigned)load_elf(process_num, (pte_t*)pcb->page_table_addr);
+	uart_spin_puts("[9EFD104c]");
+	puthex(*(unsigned*)(0x9EFD104c));
 
 	pcb->pid = max_pid++;
 	pcb->parent = 0;
 	add_pcb(pcb);
+	uart_spin_puts("[9EFD104c]");
+	puthex(*(unsigned*)(0x9EFD104c));
+	uart_spin_puts("pcb addr = ");
+	puthex(pcb);
 	return addr;
 }
 

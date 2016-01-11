@@ -76,11 +76,11 @@ KERN_SCHED = $(wildcard kern/sched/*.c)
 KERN_SYSCALL = $(wildcard kern/syscalls/*.c)
 
 kern_objects =  kern/exception/interrupt_asm.o \
-				$(KERN_SCHED:.c=.o) \
 				kern/kernel_entry.o \
 				$(KERN_VM:.c=.o) \
 				$(KERN_INTERRUPT:.c=.o) \
 				$(KERN_SYSCALL:.c=.o) \
+				$(KERN_SCHED:.c=.o) \
 				drivers/serial/uart.o \
 				drivers/serial/uart-zynq7000.o \
 				drivers/clock/ptc-a9mpcore.o \

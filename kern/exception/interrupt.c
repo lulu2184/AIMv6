@@ -47,14 +47,18 @@ void enable_peripheral_interrupt() {
 	out32(ICCPMR, 0x80);
 }
 
-void C_SVC_handler(unsigned number, unsigned *reg) {
+void C_SVC_handler(unsigned number, unsigned *reg, unsigned old_lr) {
 	uart_spin_puts("SVC handler.\r\n");
+	puthex(reg[0]);
+	puthex(reg[1]);
+	puthex(old_lr);
 	enter_sys_mode();
 	u32 tmp_sp, tmp_lr;
 	asm volatile(
 		"mov %0, sp\r\n"
 		"mov %1, lr"
 		:"=r"(tmp_sp), "=r"(tmp_lr));
+	uart_spin_puts("sys mode\r\n");
 	switch(number) {
 		case 1:
 			break; //SVC number 1 code
@@ -70,16 +74,12 @@ void C_SVC_handler(unsigned number, unsigned *reg) {
 	enter_svc_mode();
 }
 
-void C_prefetch_abort_handler() {
+void C_prefetch_abort_handler(u32 old_lr) {
 	uart_spin_puts("prefetch abort handler.\r\n");
-	u32 tmp;
 	uart_spin_puts("in abort, LR = ");
-	asm volatile("mov %0 ,lr" : "=r"(tmp));
-	puthex(tmp);
+	puthex(old_lr);
 	print_spsr();
 	print_cpsr();
-	uart_spin_puts("in abort, SP=");
-	puthex(tmp);
 	uart_spin_getbyte();
 }
 

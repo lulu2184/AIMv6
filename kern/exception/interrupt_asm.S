@@ -27,6 +27,8 @@ SVC_handler:
 	ldr r0, [lr, #-4]
 	bic r0, r0, #0xFF000000
 	mov r1, sp
+	add r1, r1, #8
+	mov r2, lr
 	bl C_SVC_handler
 	ldmfd sp!, {r0, r3}
 	msr spsr_cxsf, r0
@@ -34,6 +36,7 @@ SVC_handler:
 
 prefetch_abort_handler:
 	stmfd sp!, {r0-r12, lr}
+	mov r0, lr
 	bl C_prefetch_abort_handler
 	ldmfd sp!, {r0-r12, pc}^
 

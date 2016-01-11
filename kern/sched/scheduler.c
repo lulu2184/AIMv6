@@ -26,6 +26,7 @@ void add_pcb(pcb_t* pcb) {
 	puthex(pcb);
 	pcb_list_t* list_element = (pcb_list_t*)obj_alloc(PCB_LIST_T_SIZE);
 	list_element->pcb = pcb;
+	puthex(list_element->pcb);
 	list_element->next = NULL;
 	if (pcb_list_head == NULL) {
 		pcb_list_head = list_element;
@@ -36,6 +37,7 @@ void add_pcb(pcb_t* pcb) {
 	if (current_pcb == NULL) {
 		current_pcb = list_element;
 	}
+	puthex(current_pcb->pcb);
 	pcb_list_tail = list_element;
 	uart_spin_puts("finish adding pcb\r\n");
 }

@@ -2,7 +2,7 @@
 #define _INTERRUPT_H_
 
 void interrupt_init();
-void C_SVC_handler(unsigned number, unsigned *reg);
+void C_SVC_handler(unsigned number, unsigned *reg, unsigned old_lr);
 void C_prefetch_abort_handler();
 void C_data_abort_handler();
 void C_IRQ_handler();

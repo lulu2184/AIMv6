@@ -44,14 +44,13 @@ unsigned user_page_alloc(pte_t *pte, unsigned addr, int pnum) {
 	if (pte->type == 0) {
 		pte->type = 1;
 		pde = obj_alloc(1024);
-		uart_spin_puts("pde = ");
-		puthex(pde);
 		pte->pte_base = (unsigned)pde >> 10;
 		memset((char*)pde, 0, 1024);
 	}
-	uart_spin_puts("flag\r\n");
+	puthex(*pte);
+	// if user ask for more than 1M, some issues.
 	pde = (pde_t*)(pte->pte_base << 10);
-	unsigned L2_offset = (addr >> PAGE_SHIFT) & 0xFF;
+	unsigned L2_offset = (addr >> PAGE_SHIFT) & 0xFFF;
 	pde = pde + L2_offset;
 	puthex((unsigned)pde);
 	for (int i = 0; i < pnum; i++) {
@@ -70,6 +69,9 @@ unsigned user_page_alloc(pte_t *pte, unsigned addr, int pnum) {
 		}
 		pde++;
 	}
+	uart_spin_puts("[9EFFB400] ");
+	puthex(*(unsigned*)(0x9EFFC400));
+	uart_spin_getbyte();
 	return phyaddr;
 }
 

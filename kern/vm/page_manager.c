@@ -54,6 +54,8 @@ char* alloc_pages(int pnum) {
 	}
 	if (ret == NULL)
 		uart_spin_puts("Allocate fails.\r\n");
+	uart_spin_puts("alloc page ");
+	puthex(ret);
 	return ret;
 }
 
@@ -93,6 +95,7 @@ void free_pages(char *addr, unsigned size) {
 
 	uart_spin_puts("free pages ");
 	puthex(size);
+	puthex(addr);
 	mblock_t *block = kmem.freelist;
 	mblock_t *last = NULL;
 	while (1) {

@@ -5,7 +5,6 @@
 #include "puthex.h"
 
 unsigned load_elf(unsigned program_num, pte_t *pte) {
-	interrupt_disable();
 	uart_spin_puts("read elf\r\n");
 	// u32 program_start;
 	// if (program_num == 0) 
@@ -50,12 +49,13 @@ unsigned load_elf(unsigned program_num, pte_t *pte) {
 
 		unsigned paddr = user_page_alloc(pte, p_paddr, (p_count >> 3) + 1);
 		uart_spin_puts("wawaw\r\n");
-		
+
 		sd_dma_spin_read((u32)paddr, p_count, partition_start + p_offset);
 		program_header = program_header + (program_header_size >> 2);
 	}
 
-	interrupt_enable();
+	uart_spin_puts("[9EFD104c]");
+	puthex(*(unsigned*)(0x9EFD104c));
 	uart_spin_puts("finish read elf\r\n");
 	return target_entry;
 }
