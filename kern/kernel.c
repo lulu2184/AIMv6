@@ -9,6 +9,7 @@
 #include <drivers/clock/ptc-a9mpcore.h>
 #include "sched/process.h"
 #include "vm/slab_defines.h"
+#include <drivers/sd/sd-zynq7000.h>
 
 void print_PC() {
 	u32 tmp;
@@ -54,9 +55,17 @@ void single_proc_test() {
 int kernel_main() {
 	uart_init();
 	uart_enable();
+	sd_init();
 	uart_spin_puts("Hello kernel!\r\n");
 	//initialize devices
 	interrupt_disable();
+	int ret = sd_spin_init_mem_card();
+	puthex(ret);
+	uart_spin_getbyte();
+
+	sd_dma_spin_read(0x300000, 1, 0x4000);
+	uart_spin_puts("adfa\r\n");
+
 	print_cpsr();
 
 	init_first_page_table();
@@ -80,6 +89,7 @@ int kernel_main() {
 
 	print_cpsr();
 	interrupt_init();
+	scheduler_init();
 	uart_spin_puts("finish interrupt init\r\n");
 
 	print_cpsr();

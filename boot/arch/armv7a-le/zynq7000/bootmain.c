@@ -16,6 +16,8 @@ void mbr_bootmain(void) {
 	volatile u8 *header_start = (void *)0x300000;
 	sd_dma_spin_read((u32)header_start, 3, partition2_start);
 
+	puthex(partition2_start);
+
 	void (*entry_point)(void) = (void *)(*(u32*)(header_start + 0x18));
 	u16 program_header_size = *(u16*)(header_start + 0x2A);
 	u16 program_header_count = *(u16*)(header_start + 0x2C);
@@ -34,5 +36,6 @@ void mbr_bootmain(void) {
 		program_header = program_header + (program_header_size >> 2);
 	}
 
+	uart_spin_puts("MBF end\r\n");
 	entry_point();
 }

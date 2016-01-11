@@ -83,15 +83,14 @@ void C_prefetch_abort_handler() {
 	uart_spin_getbyte();
 }
 
-void C_data_abort_handler() {
+void C_data_abort_handler(u32 old_lr) {
 	uart_spin_puts("data abort handler.\r\n");
 	u32 tmp;
 	asm volatile("mov %0, sp" : "=r"(tmp));
 	uart_spin_puts("SP = ");
 	puthex(tmp);
-	asm volatile("mov %0, lr" : "=r"(tmp));
 	uart_spin_puts("LR = ");
-	puthex(tmp);
+	puthex(old_lr);
 	uart_spin_getbyte();
 }
 
@@ -103,6 +102,7 @@ void C_IRQ_handler(u32 old_lr) {
 		"mov %1, lr"
 		:"=r"(tmp_sp), "=r"(tmp_lr));
 	uart_spin_puts("IRQ abort handler.\r\n");
+	puthex(old_lr);
 	u32 interrupt_ID = in32(ICCIAR);
 	uart_spin_puts("Interrupt ID = ");
 	puthex(interrupt_ID);
@@ -112,7 +112,7 @@ void C_IRQ_handler(u32 old_lr) {
 	} else {
 		out32(ICCEOIR, interrupt_ID);
 	}
-	// uart_spin_getbyte();
+	uart_spin_getbyte();
 	asm volatile(
 		"mov sp, %0\r\n"
 		"mov lr, %1"

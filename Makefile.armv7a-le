@@ -78,7 +78,6 @@ KERN_SYSCALL = $(wildcard kern/syscalls/*.c)
 kern_objects =  kern/exception/interrupt_asm.o \
 				$(KERN_SCHED:.c=.o) \
 				kern/kernel_entry.o \
-				kern/arch/$(ARCH)/enable_mmu.o \
 				$(KERN_VM:.c=.o) \
 				$(KERN_INTERRUPT:.c=.o) \
 				$(KERN_SYSCALL:.c=.o) \

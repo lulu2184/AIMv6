@@ -1,5 +1,7 @@
 #include "page_defines.h"
 #include "slab_defines.h"
+#include "puthex.h"
+#include <drivers/serial/uart.h>
 
 const int SLAB_SIZE_NUM = 6;
 const int slab_size_list[6] = {8, 16, 64, 128, 512, 1024};
@@ -136,7 +138,7 @@ void* obj_alloc(int obj_size) {
 		return NULL;
 	}
 	for (slab_pool_t* slab_pool = slab_pool_header; slab_pool != NULL; slab_pool = slab_pool->next) {
-		if (slab_pool->obj_size > obj_size) {
+		if (slab_pool->obj_size >= obj_size) {
 			for (slab_t* slab = slab_pool->slab_header; ; slab = slab->next) {
 				puthex(slab->obj_remain);
 				if (slab == NULL) {

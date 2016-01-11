@@ -1,5 +1,6 @@
 #include "scheduler.h"
 #include <vm/slab_defines.h>
+#include <drivers/serial/uart.h>
 
 #define NULL 0
 #define PCB_LIST_T_SIZE 8
@@ -21,6 +22,8 @@ void scheduler_init() {
 }
 
 void add_pcb(pcb_t* pcb) {
+	uart_spin_puts("add pcb at address ");
+	puthex(pcb);
 	pcb_list_t* list_element = (pcb_list_t*)obj_alloc(PCB_LIST_T_SIZE);
 	list_element->pcb = pcb;
 	list_element->next = NULL;
@@ -34,6 +37,7 @@ void add_pcb(pcb_t* pcb) {
 		current_pcb = list_element;
 	}
 	pcb_list_tail = list_element;
+	uart_spin_puts("finish adding pcb\r\n");
 }
 
 void delete_pcb(pcb_t* pcb) {
