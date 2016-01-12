@@ -11,5 +11,7 @@ int main() {
 	print(constant_str);
 	puthex(tmp);
 
+	while(1);
+
 	exit(0);
 }

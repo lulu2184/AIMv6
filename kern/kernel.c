@@ -11,6 +11,7 @@
 #include "vm/slab_defines.h"
 #include <drivers/sd/sd-zynq7000.h>
 #include "sched/context_switch.h"
+#include "memcpy.h"
 
 void print_PC() {
 	u32 tmp;
@@ -85,22 +86,89 @@ void single_proc_test() {
 }
 
 void single_proc_test_cts() {
-	uart_spin_puts("try to jump to new process\r\n");
 	unsigned addr = init_process(1);
 	pcb_t* pcb = next_pcb();
-	next_pcb();
+
+	uart_spin_puts("try to jump to new process\r\n");
+	puthex(pcb->page_table_addr);
+	puthex(*(unsigned*)(pcb->page_table_addr + (0x4 << 2)));
+	puthex(*(unsigned*)(0x9EFFB000));
+	puthex(*(unsigned*)(pcb->page_table_addr + (0x808 << 2)));
+	puthex(*(unsigned*)(pcb->page_table_addr + (0x809 << 2)));
+
+	unsigned pt_addr = pcb->page_table_addr + 0x80000000;
+	puthex(pt_addr);
+	puthex(addr);
+
+	print_cpsr();
 
 	asm volatile(
-		"mov r1, %0\r\n"
-		"mov lr, %1\r\n"
-		"mov r12, %2\r\n"
-		"stm r1, {r0-r14}^\r\n"
-		"mrs r0, spsr\r\n"
+		"mov r12, %1\r\n"
+		"mov lr, %2\r\n"
+		"stm r12, {r0-r11, lr}^\r\n"
+		"mrs r0, cpsr\r\n"
 		"bic r0, r0, #0xF\r\n"
-		"stmdb r1, {r0, lr}\r\n"
-		::"r"(pcb->kern_SP), "r"(addr), "r"(pcb->page_table_addr + 0x80000000));
-	uart_spin_puts("before context_switch\r\n");
-	context_switch();
+		"stmdb r12, {r0, lr}\r\n"
+
+		"stm sp, {r0-r12}^\r\n"
+		"mrs r0, spsr\r\n"
+		"stmdb sp, {r0, lr}\r\n"
+
+		"mov r0, #0\r\n"
+		"mov r2, %0\r\n"
+		"isb\r\n"
+ 		"mcr p15, 0, r0, c8, c7, 0\r\n" //invalidate TLB
+		"mcr p15, 0, r2, c2, c0, 0\r\n"
+		"isb\r\n"
+		"dsb\r\n"
+
+		"mov sp, r12\r\n"
+		"ldmdb sp, {r0, lr}\r\n"
+		"msr spsr_cxsf, r0\r\n"
+		"ldm sp, {r0-r12, lr}^\r\n"
+		::"r"(pt_addr), "r"(pcb->kern_SP), "r"(addr));
+
+	u32 tmp;
+	asm volatile("mov %0 ,lr" : "=r"(tmp));
+	puthex(tmp);
+
+	print_cpsr();
+
+	uart_spin_puts("ASAa\r\n");
+
+	puthex(*(unsigned*)(0x9EFD1098));
+	puthex(*(unsigned*)(tmp));
+	// u32 tmp;
+	// asm volatile(
+	// 	"mov r1, %1\r\n"
+	// 	"mov lr, %2\r\n"
+	// 	"mov r2, %3\r\n"
+	// 	// "stm r1, {r0-r14}^\r\n"
+	// 	// "mrs r0, spsr\r\n"
+	// 	// "bic r0, r0, #0xF\r\n"
+	// 	// "stmdb r1, {r0, lr}\r\n"
+	// 	// "stm sp, {r0-r14}^\r\n"
+	// 	// "mrs r0, spsr\r\n"
+	// 	// "stmdb sp, {r0, lr}\r\n"
+	// 	// "mov sp, r1\r\n"
+	// 	// "mov %0, r2\r\n"
+	// 	// "mov r0, #0\r\n"
+	// 	"isb\r\n"
+ // 		// "mcr p15, 0, r0, c8, c7, 0\r\n" //invalidate TLB
+	// 	"mcr p15, 0, r2, c2, c0, 0\r\n" // change page table
+	// 	"isb\r\n"
+	// 	"dsb\r\n"
+	// 	// "ldmdb sp, {r0, lr}\r\n"
+	// 	// "msr spsr_cxsf, r0\r\n"
+	// 	// "ldm sp, {r0-r13, pc}^\r\n"
+	// 	:"=r"(tmp)
+	// 	:"r"(pcb->kern_SP), "r"(addr), "r"(pt_addr)
+	// 	:"r0", "r1", "r3");
+	// puthex(tmp);
+	// puthex(*(unsigned*)(0x400098));
+	// puthex(*(unsigned*)addr);
+	uart_spin_puts("asdfsab\r\n");
+	while(1);
 }
 
 void test_syscall() {
@@ -109,6 +177,25 @@ void test_syscall() {
 		"mov r1, #0x10\r\n"
 		"mov r0, #2\r\n"
 		"swi 0");
+}
+
+void test_change_table() {
+	uart_spin_puts("test change table\r\n");
+	char* entry = setup_page_table();
+	puthex(entry);
+	char* kt_entry = (void *)(PRESERVED_MEM_BASE + (PAGE_SIZE << 1));
+	memcpy(entry, kt_entry, PAGE_SIZE << 2);
+	uart_spin_puts("before change table\r\n");
+	entry += 0x80000000;
+	puthex(entry);
+	asm volatile(
+		"mov r2, %0\r\n"
+		"isb\r\n"
+		"mcr p15, 0, r2, c2, c0, 0\r\n"
+		"isb\r\n"
+		"dsb\r\n"
+		::"r"(entry));
+	uart_spin_puts("fang yi tiao sheng lu a\r\n");
 }
 
 int kernel_main() {
@@ -156,6 +243,7 @@ int kernel_main() {
 	ptc_enable();
 	// test_clock_interrupt();
 
+	// test_change_table();
 	// test_syscall();
 	// test_svc();
 	// single_proc_test();

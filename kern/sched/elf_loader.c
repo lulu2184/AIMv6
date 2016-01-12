@@ -51,11 +51,12 @@ unsigned load_elf(unsigned program_num, pte_t *pte) {
 		uart_spin_puts("wawaw\r\n");
 
 		sd_dma_spin_read((u32)paddr, p_count, partition_start + p_offset);
+		paddr += 0x80000000 + 0x98;
+		puthex(paddr);
+		puthex(*(unsigned*)(paddr));
 		program_header = program_header + (program_header_size >> 2);
 	}
 
-	uart_spin_puts("[9EFD104c]");
-	puthex(*(unsigned*)(0x9EFD104c));
 	uart_spin_puts("finish read elf\r\n");
 	return target_entry;
 }

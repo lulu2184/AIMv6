@@ -22,8 +22,6 @@ unsigned init_process(unsigned process_num) {
 	pcb->pid = max_pid++;
 	pcb->parent = 0;
 	add_pcb(pcb);
-	uart_spin_puts("[9EFD104c]");
-	puthex(*(unsigned*)(0x9EFD104c));
 	uart_spin_puts("pcb addr = ");
 	puthex(pcb);
 	return addr;
