@@ -61,7 +61,7 @@ unsigned user_page_alloc(pte_t *pte, unsigned addr, int pnum) {
 		puthex(i);
 		puthex(pde);
 		if (pde->type == 0) {
-			pde->type = 1;
+			pde->type = 2;
 			pde->memattr = 0;		
 			pde->AP = 0x3;		//Full Access AP: 011
 			pde->TEX = 0x0; 	
@@ -72,6 +72,8 @@ unsigned user_page_alloc(pte_t *pte, unsigned addr, int pnum) {
 		} else {
 			panic("page has been used.\r\n");
 		}
+		uart_spin_puts("pde == ");
+		puthex(*pde);
 		pde++;
 	}
 	return phyaddr;

@@ -92,7 +92,7 @@ void single_proc_test_cts() {
 	uart_spin_puts("try to jump to new process\r\n");
 	puthex(pcb->page_table_addr);
 	puthex(*(unsigned*)(pcb->page_table_addr + (0x4 << 2)));
-	puthex(*(unsigned*)(0x9EFFB000));
+	puthex(*(unsigned*)(0x9EFFB400));
 	puthex(*(unsigned*)(pcb->page_table_addr + (0x808 << 2)));
 	puthex(*(unsigned*)(pcb->page_table_addr + (0x809 << 2)));
 
@@ -125,7 +125,7 @@ void single_proc_test_cts() {
 		"mov sp, r12\r\n"
 		"ldmdb sp, {r0, lr}\r\n"
 		"msr spsr_cxsf, r0\r\n"
-		"ldm sp, {r0-r12, lr}^\r\n"
+		"ldm sp, {r0-r12, pc}^\r\n"
 		::"r"(pt_addr), "r"(pcb->kern_SP), "r"(addr));
 
 	u32 tmp;
