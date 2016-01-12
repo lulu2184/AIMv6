@@ -5,6 +5,8 @@
 #include <asm/io.h>
 #include <drivers/clock/ptc-a9mpcore.h>
 #include <syscalls/syscalls.h>
+#include <arch/armv7a-le/asm/irq.h>
+#include <sched/context_switch.h>
 
 #define ICD_OFFSET 0x1000
 #define ICC_OFFSET 0x0100
@@ -96,12 +98,14 @@ void C_data_abort_handler(u32 old_lr) {
 
 void C_IRQ_handler(u32 old_lr) {
 	enter_sys_mode();
+	irq_disable();
 	u32 tmp_lr, tmp_sp;
 	asm volatile(
 		"mov %0, sp\r\n"
 		"mov %1, lr"
 		:"=r"(tmp_sp), "=r"(tmp_lr));
 	uart_spin_puts("IRQ abort handler.\r\n");
+	uart_spin_getbyte();
 	puthex(old_lr);
 	u32 interrupt_ID = in32(ICCIAR);
 	uart_spin_puts("Interrupt ID = ");
@@ -109,6 +113,9 @@ void C_IRQ_handler(u32 old_lr) {
 	if (interrupt_ID == 29) { // private timer
 		uart_spin_puts("Private Timer interupt\r\n");
 		out32(ICCEOIR, 29);
+		// get_current_pcb();
+		context_switch(old_lr);
+		uart_spin_puts("hello?\r\n");
 	} else {
 		out32(ICCEOIR, interrupt_ID);
 	}
@@ -117,6 +124,7 @@ void C_IRQ_handler(u32 old_lr) {
 		"mov sp, %0\r\n"
 		"mov lr, %1"
 		::"r"(tmp_sp), "r"(tmp_lr));
+	irq_enable();
 	enter_irq_mode();
 }
 

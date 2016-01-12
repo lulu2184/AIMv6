@@ -2,7 +2,6 @@
 #include <vm/slab_defines.h>
 #include <drivers/serial/uart.h>
 
-#define NULL 0
 #define PCB_LIST_T_SIZE 8
 
 typedef struct pcb_list_s{
@@ -13,6 +12,55 @@ typedef struct pcb_list_s{
 pcb_list_t* pcb_list_head;
 pcb_list_t* pcb_list_tail;
 pcb_list_t* current_pcb;
+
+// pcb_list_t* adjust_list_ele(unsigned addr) {
+// 	if (addr < 0x80000000) {
+// 		addr += 0x80000000;
+// 	}
+// 	pcb_list_t* ptr = (pcb_list_t*)addr;
+// 	return ptr;
+// }
+
+// pcb_t* adjust_pcb(unsigned addr) {
+// 	if (addr < 0x80000000) {
+// 		addr += 0x80000000;
+// 	}
+// 	pcb_t* ptr = (pcb_t*)addr;
+// 	return ptr;
+// }
+
+// pcb_t* next_pcb() {
+// 	pcb_list_t* current = adjust_list_ele(&current_pcb);
+// 	uart_spin_puts("1");
+// 	current = current->next;
+// 	uart_spin_puts("1");
+// 	if (current == NULL) {
+// 		uart_spin_puts("2");
+// 		current = adjust_list_ele(&pcb_list_head);
+// 	}
+// 	uart_spin_puts("1");
+// 	// uart_spin_puts("curren pcb addr ======= ");
+// 	// puthex(&current_pcb);
+// 	// uart_spin_puts("curren pcb ======= ");
+// 	// puthex(current_pcb);
+// 	return adjust_pcb(&current->pcb);
+// }
+
+// pcb_t* get_current_pcb() {
+// 	return adjust_list_ele(&current_pcb)->pcb;
+// }
+
+pcb_t* next_pcb() {
+	current_pcb = current_pcb->next;
+	if (current_pcb == NULL) {
+		current_pcb = pcb_list_head;
+	}
+	return current_pcb->pcb;
+}
+
+pcb_t* get_current_pcb() {
+	return current_pcb->pcb;
+}
 
 void scheduler_init() {
 	pcb_list_head = NULL;
@@ -57,14 +105,3 @@ void delete_pcb(pcb_t* pcb) {
 	}
 }
 
-pcb_t* next_pcb() {
-	current_pcb = current_pcb->next;
-	if (current_pcb == NULL) {
-		current_pcb = pcb_list_head;
-	}
-	return current_pcb->pcb;
-}
-
-pcb_t* get_current_pcb() {
-	return current_pcb->pcb;
-}
