@@ -14,7 +14,7 @@ void ptc_init(u32 time_interval) {
 	u32 reg_value = in32(PTC_BASE + PTC_CONTROL_OFFSET);
 	//enable IRQ
 	reg_value = (reg_value | 4);
-	//single shot reload
+	//auto reload
 	reg_value = (reg_value | 2);
 
 	//set interval

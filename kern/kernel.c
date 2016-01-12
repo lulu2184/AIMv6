@@ -112,7 +112,6 @@ void single_proc_test_cts() {
 		"bic r0, r0, #0xF\r\n"
 		"stmdb r12, {r0, lr}\r\n"
 
-		"ldr lr, =happy_say_hello\r\n"
 		"stm sp, {r0-r12, lr}^\r\n"
 		"mrs r0, spsr\r\n"
 		"stmdb sp, {r0, lr}\r\n"
@@ -174,9 +173,6 @@ int kernel_main() {
 	interrupt_disable();
 	int ret = sd_spin_init_mem_card();
 	puthex(ret);
-
-	sd_dma_spin_read(0x300000, 1, 0x4000);
-	uart_spin_puts("adfa\r\n");
 
 	print_cpsr();
 

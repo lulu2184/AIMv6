@@ -28,7 +28,7 @@ void init_mapping() {
 		fill_pme_common(pme);
 		pme->B = 0;			
 		pme->C = 0;			
-		pme->AP_L = 0x3;	//Privileged access only AP: 001
+		pme->AP_L = 0x1;	//Privileged access only AP: 001
 		pme->TEX = 0x0; 	
 		pme->AP_H = 0x0; 	//Privileged access only
 		pme->S = 0x1;		//sharable
@@ -43,7 +43,7 @@ void init_mapping() {
 		fill_pme_common(pme);
 		pme->B = 0;			
 		pme->C = 0;			
-		pme->AP_L = 0x3;	//Privileged access only AP: 001
+		pme->AP_L = 0x1;	//Privileged access only AP: 001
 		pme->TEX = 0x0; 	
 		pme->AP_H = 0x0; 	//Privileged access only
 		pme->S = 0x1;		//sharable
@@ -88,12 +88,11 @@ void remove_low_mapping() {
 
 static inline void enable_mmu() {
 	asm volatile(
-		"mov r0, #0x1F00\r\n"
-		"lsl r0, r0, #0x10\r\n"
+		"ldr r0, =0x1F000000\r\n"
 		"mcr p15, 0, r0, c2, c0, 0\r\n"
 		"mov r0, #0\r\n"
  		"mcr p15, 0, r0, c8, c7, 0\r\n"
- 		"ldr r0, =0x55555555\r\n"
+ 		"mov r0, #0x3\r\n"
  		"mcr p15, 0, r0, c3, c0, 0\r\n"
  		"isb\r\n"
 		"mrc p15, 0, r0, c1, c0, 0\r\n"

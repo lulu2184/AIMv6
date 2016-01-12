@@ -105,6 +105,7 @@ clean:
 	rm -rf $(FIRMWARE_OBJS) firmware.elf firmware.bin firmware.s
 	rm -rf $(MBR_OBJS) mbr.elf mbr.bin mbr.s
 	rm -rf $(kern_objects)
+	*.o
 
 .S.o:
 	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -o $@ -c $<

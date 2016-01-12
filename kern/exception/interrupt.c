@@ -38,7 +38,7 @@ void interrupt_init() {
 
 void enable_peripheral_interrupt() {
 	out32(ICDDCR, 0x1);
-	out32(ICCICR, 0x1);
+	// out32(ICCICR, 0x1);
 	//enable private timer interrupt
 	out32(ICDSER0, 0x20000000);
 
@@ -115,8 +115,6 @@ void C_IRQ_handler(u32 old_lr) {
 		out32(ICCEOIR, 29);
 		// get_current_pcb();
 		context_switch(old_lr);
-		uart_spin_puts("hello?\r\n");
-	} else {
 		out32(ICCEOIR, interrupt_ID);
 	}
 	uart_spin_getbyte();
