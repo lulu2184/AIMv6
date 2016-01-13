@@ -38,7 +38,7 @@ void interrupt_init() {
 
 void enable_peripheral_interrupt() {
 	out32(ICDDCR, 0x1);
-	// out32(ICCICR, 0x1);
+	out32(ICCICR, 0x1);
 	//enable private timer interrupt
 	out32(ICDSER0, 0x20000000);
 
@@ -96,7 +96,7 @@ void C_data_abort_handler(u32 old_lr) {
 	uart_spin_getbyte();
 }
 
-void C_IRQ_handler(u32 old_lr) {
+unsigned C_IRQ_handler(u32 old_lr) {
 	enter_sys_mode();
 	irq_disable();
 	u32 tmp_lr, tmp_sp;
@@ -112,18 +112,16 @@ void C_IRQ_handler(u32 old_lr) {
 	puthex(interrupt_ID);
 	if (interrupt_ID == 29) { // private timer
 		uart_spin_puts("Private Timer interupt\r\n");
-		out32(ICCEOIR, 29);
-		// get_current_pcb();
-		context_switch(old_lr);
-		out32(ICCEOIR, interrupt_ID);
+		old_lr = context_switch(old_lr);
 	}
-	uart_spin_getbyte();
+	out32(ICCEOIR, interrupt_ID);
 	asm volatile(
 		"mov sp, %0\r\n"
 		"mov lr, %1"
 		::"r"(tmp_sp), "r"(tmp_lr));
 	irq_enable();
 	enter_irq_mode();
+	return old_lr;
 }
 
 void print_spsr() {

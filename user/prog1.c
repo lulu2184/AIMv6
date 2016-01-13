@@ -13,7 +13,7 @@ int main() {
 
 	while(1) {
 		print("[P1]I'm P1 process\r\n");
-	};
+	}
 
 	exit(0);
 }

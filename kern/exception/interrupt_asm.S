@@ -44,7 +44,9 @@ data_abort_handler:
 	stmfd sp!, {r0-r12, lr}
 	mov r0, lr
 	bl C_data_abort_handler
-	ldmfd sp!, {r0-r12, pc}^
+	stmfd sp!, {r0}
+	ldmfd sp!, {r0-r12, lr}
+	ldmfd sp!, {pc}^
 
 IRQ_handler:
 	sub lr, lr, #4

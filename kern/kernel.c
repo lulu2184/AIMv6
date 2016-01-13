@@ -105,16 +105,18 @@ void single_proc_test_cts() {
 	print_cpsr();
 
 	asm volatile(
+		"ldr lr, =happy_say_hello\r\n"
+		"stm sp, {r0-r12, lr}^\r\n"
+		"mrs r0, cpsr\r\n"
+		"stmdb sp, {r0, lr}\r\n"
+		"mov %0, sp\r\n"
+
 		"mov r12, %2\r\n"
 		"mov lr, %3\r\n"
 		"stm r12, {r0-r12, lr}^\r\n"
 		"mrs r0, cpsr\r\n"
 		"bic r0, r0, #0xF\r\n"
 		"stmdb r12, {r0, lr}\r\n"
-
-		"stm sp, {r0-r12, lr}^\r\n"
-		"mrs r0, spsr\r\n"
-		"stmdb sp, {r0, lr}\r\n"
 
 		"mov r0, #0\r\n"
 		"mov r2, %1\r\n"
@@ -129,7 +131,8 @@ void single_proc_test_cts() {
 		"msr spsr_cxsf, r0\r\n"
 		"ldm sp, {r0-r12, pc}^\r\n"
 		:"=r"(pre_pcb->kern_SP)
-		:"r"(pt_addr), "r"(pcb->kern_SP), "r"(addr));
+		:"r"(pt_addr), "r"(pcb->kern_SP), "r"(addr)
+		:"r0", "r2", "r12");
 }
 
 void test_syscall() {
